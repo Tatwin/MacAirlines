@@ -1,0 +1,77 @@
+Build a full-stack Airline Reservation Website using React (frontend), Node.js + Express (backend), and MongoDB (database) with the following requirements:
+
+Pages & Features
+
+Home Page – welcome message, flight search, and navigation links.
+
+Customer Login & Signup – customers can register, log in, book flights, view tickets, and check transaction history.
+
+Employee Login & Signup – employees can log in to manage operations.
+
+Booking Page – customers can search flights, select seats, and confirm booking.
+
+Ticket Page – customers can view booked tickets (ticket number, flight number, date, passenger info, seat, etc.).
+
+Transaction Page – customers can view their transaction history with booking ID, payment amount, and timestamp.
+
+Employee Dashboard – employees can CRUD passenger details and tickets (Create, Read, Update, Delete).
+
+Backend (Node.js + Express + MongoDB)
+
+Authentication with JWT (role-based: customer or employee).
+
+MongoDB collections:
+
+users (stores customers & employees with role field)
+
+flights (flight details)
+
+tickets (ticket details linked to customers & flights)
+
+transactions (payment records linked to tickets)
+
+API endpoints:
+
+/auth/signup (for both customer & employee with role)
+
+/auth/login (returns JWT)
+
+/flights/search (customers search available flights)
+
+/bookings/create (create booking & ticket)
+
+/bookings/:id (view specific booking/ticket)
+
+/transactions/:userId (view customer’s transaction history)
+
+/employee/passengers (CRUD endpoints for employees to manage passenger details)
+
+/employee/tickets (CRUD endpoints for employees to manage tickets)
+
+Frontend (React + Tailwind CSS)
+
+Navigation bar: Home, Book Flight, My Tickets, Transactions, Employee Dashboard.
+
+Role-based rendering:
+
+Customers → booking, tickets, transactions.
+
+Employees → dashboard with CRUD forms for passengers & tickets.
+
+Booking form → flight search, seat selection, confirm booking.
+
+Ticket page → styled ticket display.
+
+Transaction page → table with booking ID, amount, and timestamp.
+
+Employee dashboard → forms/tables to add/edit/delete passengers & tickets.
+
+Extra Notes
+
+Generate unique ticket numbers for each booking.
+
+Validate seat availability before confirming booking.
+
+Store transactions with bookingId, amount, method, and timestamp.
+
+UI should be responsive, clean, and easy to use.
