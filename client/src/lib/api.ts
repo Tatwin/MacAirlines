@@ -242,6 +242,50 @@ export class ApiClient {
 
     return response.json();
   }
+
+  // Ticket action methods
+  async checkInTicket(id: string) {
+    const response = await fetch(`/api/tickets/${id}/checkin`, {
+      method: 'POST',
+      headers: this.getHeaders(),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Failed to check in');
+    }
+
+    return response.json();
+  }
+
+  async cancelTicket(id: string) {
+    const response = await fetch(`/api/tickets/${id}/cancel`, {
+      method: 'POST',
+      headers: this.getHeaders(),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Failed to cancel ticket');
+    }
+
+    return response.json();
+  }
+
+  async changeSeat(id: string, seatNumber: string) {
+    const response = await fetch(`/api/tickets/${id}/change-seat`, {
+      method: 'POST',
+      headers: this.getHeaders(),
+      body: JSON.stringify({ seatNumber }),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Failed to change seat');
+    }
+
+    return response.json();
+  }
 }
 
 export const apiClient = new ApiClient();

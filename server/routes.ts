@@ -390,6 +390,138 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Ticket action routes
+  app.post('/api/tickets/:id/checkin', authenticateToken, async (req: any, res) => {
+    try {
+      const ticket = await storage.getTicket(req.params.id);
+      if (!ticket) {
+        return res.status(404).json({ message: 'Ticket not found' });
+      }
+
+      // Check if user owns this ticket
+      if (ticket.userId !== req.user.id) {
+        return res.status(403).json({ message: 'Access denied' });
+      }
+
+      // Check if already checked in
+      if (ticket.checkedIn) {
+        return res.status(400).json({ message: 'Already checked in' });
+      }
+
+      // Check if flight is in the future
+      const flightDate = new Date(ticket.flight.departureTime);
+      const now = new Date();
+      const timeDiff = flightDate.getTime() - now.getTime();
+      const hoursDiff = timeDiff / (1000 * 3600);
+
+      if (hoursDiff > 24) {
+        return res.status(400).json({ message: 'Check-in opens 24 hours before departure' });
+      }
+
+      if (hoursDiff < 0) {
+        return res.status(400).json({ message: 'Flight has already departed' });
+      }
+
+      const updatedTicket = await storage.updateTicket(req.params.id, { 
+        checkedIn: true,
+        status: 'checked_in'
+      });
+
+      res.json({ 
+        ticket: updatedTicket,
+        message: 'Checked in successfully' 
+      });
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.post('/api/tickets/:id/cancel', authenticateToken, async (req: any, res) => {
+    try {
+      const ticket = await storage.getTicket(req.params.id);
+      if (!ticket) {
+        return res.status(404).json({ message: 'Ticket not found' });
+      }
+
+      // Check if user owns this ticket
+      if (ticket.userId !== req.user.id) {
+        return res.status(403).json({ message: 'Access denied' });
+      }
+
+      // Check if already cancelled
+      if (ticket.status === 'cancelled') {
+        return res.status(400).json({ message: 'Ticket already cancelled' });
+      }
+
+      // Check if flight has already departed
+      const flightDate = new Date(ticket.flight.departureTime);
+      const now = new Date();
+      
+      if (flightDate < now) {
+        return res.status(400).json({ message: 'Cannot cancel ticket for departed flight' });
+      }
+
+      const updatedTicket = await storage.updateTicket(req.params.id, { 
+        status: 'cancelled'
+      });
+
+      // Make seat available again
+      await storage.updateSeatAvailability(ticket.flightId, ticket.seatNumber, true);
+
+      res.json({ 
+        ticket: updatedTicket,
+        message: 'Ticket cancelled successfully' 
+      });
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.post('/api/tickets/:id/change-seat', authenticateToken, async (req: any, res) => {
+    try {
+      const { seatNumber } = req.body;
+      
+      if (!seatNumber) {
+        return res.status(400).json({ message: 'Seat number is required' });
+      }
+
+      const ticket = await storage.getTicket(req.params.id);
+      if (!ticket) {
+        return res.status(404).json({ message: 'Ticket not found' });
+      }
+
+      // Check if user owns this ticket
+      if (ticket.userId !== req.user.id) {
+        return res.status(403).json({ message: 'Access denied' });
+      }
+
+      // Check if new seat is available
+      const newSeat = await storage.getSeat(ticket.flightId, seatNumber);
+      if (!newSeat || !newSeat.isAvailable) {
+        return res.status(400).json({ message: 'Seat not available' });
+      }
+
+      // Make old seat available
+      await storage.updateSeatAvailability(ticket.flightId, ticket.seatNumber, true);
+      
+      // Reserve new seat
+      await storage.updateSeatAvailability(ticket.flightId, seatNumber, false);
+
+      // Update ticket
+      const updatedTicket = await storage.updateTicket(req.params.id, { 
+        seatNumber,
+        seatClass: newSeat.seatClass
+      });
+
+      res.json({ 
+        ticket: updatedTicket,
+        message: 'Seat changed successfully' 
+      });
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

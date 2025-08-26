@@ -1,12 +1,11 @@
-
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
-import { Plane, Calendar, Clock, MapPin, User, Download, AlertCircle, IndianRupee, Settings, UserCheck, CreditCard, Eye } from 'lucide-react';
+import { Plane, Calendar, Clock, MapPin, User, Download, AlertCircle, IndianRupee, Settings, UserCheck, CreditCard, Eye, CheckCircle, Users, FileText } from 'lucide-react';
 import type { Ticket, Flight, Passenger } from '@shared/schema';
 
 interface TicketCardProps {
-  ticket: any; // Using any since the ticket comes with joined data
+  ticket: Ticket & { flight: Flight; passenger: Passenger };
   onDownload: (ticketId: string) => void;
   onCancel: (ticketId: string) => void;
   onCheckIn?: (ticketId: string) => void;
@@ -252,7 +251,7 @@ export default function TicketCard({
             <Download className="mr-2 h-4 w-4" />
             Download Ticket
           </Button>
-          
+
           {ticket.status !== 'cancelled' && ticket.status !== 'completed' && (
             <Button 
               variant="ghost" 
