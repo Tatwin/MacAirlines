@@ -76,7 +76,10 @@ export class DatabaseStorage implements IStorage {
 
   // Flight methods
   async getAllFlights(): Promise<Flight[]> {
-    return await db.select().from(flights).orderBy(desc(flights.departureTime));
+    const now = new Date();
+    const allFlights = await db.select().from(flights).orderBy(flights.departureTime);
+    // Filter out flights that have already departed
+    return allFlights.filter(flight => new Date(flight.departureTime) > now);
   }
 
   async getFlight(id: string): Promise<Flight | undefined> {

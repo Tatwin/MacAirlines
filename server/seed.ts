@@ -49,7 +49,11 @@ export async function seedDatabase() {
     console.log("👥 Seeding users...");
     const createdUsers = await db.insert(users).values(sampleUsers).returning();
 
-    // Tamil Nadu and connecting flights data
+    // Generate flights with future departure times (starting from tomorrow)
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    tomorrow.setHours(6, 0, 0, 0); // Start from 6 AM tomorrow
+
     const sampleFlights = [
       {
         flightNumber: "AI841",
@@ -57,8 +61,8 @@ export async function seedDatabase() {
         aircraft: "Airbus A320",
         origin: "Chennai (MAA)",
         destination: "Coimbatore (CJB)",
-        departureTime: new Date("2025-01-27 06:30:00"),
-        arrivalTime: new Date("2025-01-27 07:45:00"),
+        departureTime: new Date(tomorrow.getTime()),
+        arrivalTime: new Date(tomorrow.getTime() + (75 * 60 * 1000)),
         duration: 75,
         basePrice: "4500.00",
         totalSeats: 180,
@@ -72,8 +76,8 @@ export async function seedDatabase() {
         aircraft: "Airbus A320neo",
         origin: "Chennai (MAA)",
         destination: "Trichy (TRZ)",
-        departureTime: new Date("2025-01-27 09:15:00"),
-        arrivalTime: new Date("2025-01-27 10:15:00"),
+        departureTime: new Date(tomorrow.getTime() + (3 * 60 * 60 * 1000)), // 3 hours later
+        arrivalTime: new Date(tomorrow.getTime() + (4 * 60 * 60 * 1000)),
         duration: 60,
         basePrice: "3800.00",
         totalSeats: 186,
@@ -87,8 +91,8 @@ export async function seedDatabase() {
         aircraft: "Boeing 737-800",
         origin: "Madurai (IXM)",
         destination: "Chennai (MAA)",
-        departureTime: new Date("2025-01-27 14:20:00"),
-        arrivalTime: new Date("2025-01-27 15:35:00"),
+        departureTime: new Date(tomorrow.getTime() + (8 * 60 * 60 * 1000)), // 8 hours later
+        arrivalTime: new Date(tomorrow.getTime() + (9.25 * 60 * 60 * 1000)),
         duration: 75,
         basePrice: "4200.00",
         totalSeats: 189,
@@ -102,8 +106,8 @@ export async function seedDatabase() {
         aircraft: "Boeing 787",
         origin: "Chennai (MAA)",
         destination: "Delhi (DEL)",
-        departureTime: new Date("2025-01-27 07:45:00"),
-        arrivalTime: new Date("2025-01-27 10:30:00"),
+        departureTime: new Date(tomorrow.getTime() + (2 * 60 * 60 * 1000)), // 2 hours later
+        arrivalTime: new Date(tomorrow.getTime() + (4.75 * 60 * 60 * 1000)),
         duration: 165,
         basePrice: "8900.00",
         totalSeats: 300,
@@ -117,8 +121,8 @@ export async function seedDatabase() {
         aircraft: "Airbus A321",
         origin: "Coimbatore (CJB)",
         destination: "Bangalore (BLR)",
-        departureTime: new Date("2025-01-27 11:40:00"),
-        arrivalTime: new Date("2025-01-27 12:25:00"),
+        departureTime: new Date(tomorrow.getTime() + (5.5 * 60 * 60 * 1000)), // 5.5 hours later
+        arrivalTime: new Date(tomorrow.getTime() + (6.25 * 60 * 60 * 1000)),
         duration: 45,
         basePrice: "3500.00",
         totalSeats: 220,
@@ -132,8 +136,8 @@ export async function seedDatabase() {
         aircraft: "Boeing 737",
         origin: "Chennai (MAA)",
         destination: "Mumbai (BOM)",
-        departureTime: new Date("2025-01-27 16:00:00"),
-        arrivalTime: new Date("2025-01-27 18:15:00"),
+        departureTime: new Date(tomorrow.getTime() + (10 * 60 * 60 * 1000)), // 10 hours later
+        arrivalTime: new Date(tomorrow.getTime() + (12.25 * 60 * 60 * 1000)),
         duration: 135,
         basePrice: "6800.00",
         totalSeats: 189,
@@ -147,8 +151,8 @@ export async function seedDatabase() {
         aircraft: "Airbus A319",
         origin: "Trichy (TRZ)",
         destination: "Chennai (MAA)",
-        departureTime: new Date("2025-01-28 08:30:00"),
-        arrivalTime: new Date("2025-01-28 09:30:00"),
+        departureTime: new Date(tomorrow.getTime() + (26 * 60 * 60 * 1000)), // Next day + 2 hours
+        arrivalTime: new Date(tomorrow.getTime() + (27 * 60 * 60 * 1000)),
         duration: 60,
         basePrice: "3900.00",
         totalSeats: 144,
@@ -162,8 +166,8 @@ export async function seedDatabase() {
         aircraft: "Airbus A320neo",
         origin: "Chennai (MAA)",
         destination: "Hyderabad (HYD)",
-        departureTime: new Date("2025-01-28 12:45:00"),
-        arrivalTime: new Date("2025-01-28 14:10:00"),
+        departureTime: new Date(tomorrow.getTime() + (30.75 * 60 * 60 * 1000)), // Next day + 6.75 hours
+        arrivalTime: new Date(tomorrow.getTime() + (32.25 * 60 * 60 * 1000)),
         duration: 85,
         basePrice: "5200.00",
         totalSeats: 158,

@@ -160,6 +160,7 @@ export default function HomePage() {
                   type="date"
                   value={searchForm.departureDate}
                   onChange={(e) => handleInputChange('departureDate', e.target.value)}
+                  min={new Date().toISOString().split('T')[0]}
                   data-testid="departure-date-input"
                 />
               </div>
@@ -173,6 +174,7 @@ export default function HomePage() {
                     type="date"
                     value={searchForm.returnDate}
                     onChange={(e) => handleInputChange('returnDate', e.target.value)}
+                    min={searchForm.departureDate || new Date().toISOString().split('T')[0]}
                     data-testid="return-date-input"
                   />
                 </div>
