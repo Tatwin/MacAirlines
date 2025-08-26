@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { useLocation } from 'wouter';
-import { TicketCard } from '@/components/ticket-card';
+import TicketCard from '@/components/ticket-card';
 import { Plane, Ticket as TicketIcon, Plus } from 'lucide-react';
 import type { Ticket, Flight, Passenger } from '@shared/schema';
 import { useEffect } from 'react';
