@@ -5,7 +5,7 @@ import {
   type InsertTicket, type InsertTransaction, type InsertSeat
 } from "@shared/schema";
 import { db } from "./db";
-import { eq, and, like, desc } from "drizzle-orm";
+import { eq, and, like, desc, gte, lte } from "drizzle-orm";
 import bcrypt from "bcrypt";
 import { randomUUID } from "crypto";
 
@@ -76,7 +76,17 @@ export class DatabaseStorage implements IStorage {
 
   // Flight methods
   async getAllFlights(): Promise<Flight[]> {
-    return await db.select().from(flights).orderBy(desc(flights.departureTime));
+    try {
+      const now = new Date();
+      return await db
+        .select()
+        .from(flights)
+        .where(gte(flights.departureTime, now)) // Only show future flights
+        .orderBy(flights.departureTime);
+    } catch (error) {
+      console.error('Error getting flights:', error);
+      throw new Error('Failed to get flights');
+    }
   }
 
   async getFlight(id: string): Promise<Flight | undefined> {
@@ -90,18 +100,44 @@ export class DatabaseStorage implements IStorage {
   }
 
   async searchFlights(origin: string, destination: string, departureDate?: Date): Promise<Flight[]> {
-    let query = db.select().from(flights)
-      .where(and(
-        like(flights.origin, `%${origin}%`),
-        like(flights.destination, `%${destination}%`)
-      ));
+    try {
+      const now = new Date();
 
-    // Remove departureDate filtering for now - this needs proper implementation
-    // if (departureDate) {
-    //   // TODO: Implement proper date range filtering
-    // }
+      let query = db
+        .select()
+        .from(flights)
+        .where(
+          and(
+            eq(flights.origin, origin),
+            eq(flights.destination, destination),
+            gte(flights.departureTime, now) // Only show future flights
+          )
+        );
 
-    return await query.orderBy(flights.departureTime);
+      if (departureDate) {
+        const startOfDay = new Date(departureDate);
+        startOfDay.setHours(0, 0, 0, 0);
+        const endOfDay = new Date(departureDate);
+        endOfDay.setHours(23, 59, 59, 999);
+
+        // Ensure we only show flights that are both on the selected date AND in the future
+        const searchStartTime = startOfDay > now ? startOfDay : now;
+
+        query = query.where(
+          and(
+            eq(flights.origin, origin),
+            eq(flights.destination, destination),
+            gte(flights.departureTime, searchStartTime),
+            lte(flights.departureTime, endOfDay)
+          )
+        );
+      }
+
+      return await query.orderBy(flights.departureTime);
+    } catch (error) {
+      console.error('Error searching flights:', error);
+      throw new Error('Failed to search flights');
+    }
   }
 
   async createFlight(flight: InsertFlight): Promise<Flight> {
