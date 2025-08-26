@@ -6,7 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { useLocation } from 'wouter';
-import { DollarSign, Receipt, Clock, Download, Eye } from 'lucide-react';
+import { IndianRupee, Receipt, Clock, Download, Eye } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import type { Transaction } from '@shared/schema';
 
@@ -76,8 +76,28 @@ export default function TransactionsPage() {
   };
 
   const handleDownloadReceipt = (transactionId: string) => {
-    // Implement receipt download functionality
-    console.log('Download receipt for transaction:', transactionId);
+    // Create download link for receipt
+    const transaction = transactions?.find((t: Transaction) => t.id === transactionId);
+    if (transaction) {
+      const receiptData = {
+        transactionId: transaction.id,
+        bookingRef: transaction.bookingReference,
+        amount: transaction.amount,
+        date: new Date(transaction.createdAt).toLocaleDateString('en-IN'),
+        paymentMethod: transaction.paymentMethod,
+        status: transaction.status
+      };
+      
+      const blob = new Blob([JSON.stringify(receiptData, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `MacAirlines_Receipt_${transaction.bookingReference}.json`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    }
   };
 
   const handleViewTransaction = (transactionId: string) => {
@@ -136,8 +156,9 @@ export default function TransactionsPage() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-gray-500">Total Spent</p>
-                  <p className="text-2xl font-bold text-gray-900" data-testid="total-spent">
-                    ${summaryStats.totalSpent.toFixed(2)}
+                  <p className="text-2xl font-bold text-gray-900 flex items-center" data-testid="total-spent">
+                    <IndianRupee className="h-5 w-5 mr-1" />
+                    {new Intl.NumberFormat('en-IN').format(summaryStats.totalSpent)}
                   </p>
                 </div>
                 <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
@@ -168,8 +189,9 @@ export default function TransactionsPage() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-gray-500">Pending</p>
-                  <p className="text-2xl font-bold text-gray-900" data-testid="pending-amount">
-                    ${summaryStats.pending.toFixed(2)}
+                  <p className="text-2xl font-bold text-gray-900 flex items-center" data-testid="pending-amount">
+                    <IndianRupee className="h-5 w-5 mr-1" />
+                    {new Intl.NumberFormat('en-IN').format(summaryStats.pending)}
                   </p>
                 </div>
                 <div className="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center">
@@ -236,7 +258,10 @@ export default function TransactionsPage() {
                           <div className={`text-sm font-medium ${
                             transaction.status === 'refunded' ? 'text-green-600' : 'text-gray-900'
                           }`}>
-                            {transaction.status === 'refunded' ? '+' : ''}${parseFloat(transaction.amount).toFixed(2)}
+                            <div className="flex items-center">
+                              <IndianRupee className="h-4 w-4 mr-1" />
+                              {transaction.status === 'refunded' ? '+' : ''}{new Intl.NumberFormat('en-IN').format(parseFloat(transaction.amount))}
+                            </div>
                           </div>
                           {transaction.status === 'refunded' && (
                             <div className="text-xs text-gray-500">Refund</div>

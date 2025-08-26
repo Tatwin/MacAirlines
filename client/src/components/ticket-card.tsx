@@ -194,18 +194,62 @@ export default function TicketCard({ ticket, onDownload, onCancel }: TicketCardP
           </div>
 
           <div className="flex space-x-3">
-            {onDownload && (
-              <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={() => onDownload(ticket.id)}
-                className="flex items-center"
-                data-testid={`download-ticket-${ticket.ticketNumber}`}
-              >
-                <Download className="mr-2 h-4 w-4" />
-                Download
-              </Button>
-            )}
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={() => {
+                const ticketData = {
+                  ticketNumber: ticket.ticketNumber,
+                  passengerName: `${ticket.passenger.firstName} ${ticket.passenger.lastName}`,
+                  flightNumber: ticket.flight.flightNumber,
+                  airline: ticket.flight.airline,
+                  origin: ticket.flight.origin,
+                  destination: ticket.flight.destination,
+                  departureTime: new Date(ticket.flight.departureTime).toLocaleString('en-IN'),
+                  arrivalTime: new Date(ticket.flight.arrivalTime).toLocaleString('en-IN'),
+                  seatNumber: ticket.seatNumber,
+                  seatClass: ticket.seatClass,
+                  amount: `₹${new Intl.NumberFormat('en-IN').format(parseFloat(ticket.price))}`,
+                  status: ticket.status,
+                  bookingReference: ticket.bookingReference
+                };
+                
+                const content = `
+MacAirlines - Electronic Ticket
+
+Ticket Number: ${ticketData.ticketNumber}
+Booking Reference: ${ticketData.bookingReference}
+
+Passenger: ${ticketData.passengerName}
+Flight: ${ticketData.flightNumber} (${ticketData.airline})
+
+Route: ${ticketData.origin} → ${ticketData.destination}
+Departure: ${ticketData.departureTime}
+Arrival: ${ticketData.arrivalTime}
+
+Seat: ${ticketData.seatNumber} (${ticketData.seatClass})
+Amount Paid: ${ticketData.amount}
+Status: ${ticketData.status.toUpperCase()}
+
+Thank you for choosing MacAirlines!
+                `;
+                
+                const blob = new Blob([content], { type: 'text/plain' });
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `MacAirlines_Ticket_${ticket.ticketNumber}.txt`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(url);
+              }}
+              className="flex items-center"
+              data-testid={`download-ticket-${ticket.ticketNumber}`}
+            >
+              <Download className="mr-2 h-4 w-4" />
+              Download
+            </Button>
             
             {isActiveTicket && onCancel && (
               <Button 

@@ -39,8 +39,8 @@ export default function FlightCard({ flight, onSelect, isSelected = false }: Fli
 
   return (
     <div 
-      className={`bg-white rounded-lg shadow-md border transition-all duration-200 hover:shadow-lg ${
-        isSelected ? 'ring-2 ring-primary border-primary' : 'border-gray-200'
+      className={`bg-white rounded-lg shadow-lg border transition-all duration-300 hover:shadow-xl card-hover ${
+        isSelected ? 'ring-2 ring-primary border-primary shadow-indian' : 'border-gray-200'
       }`}
       data-testid={`flight-card-${flight.flightNumber}`}
     >

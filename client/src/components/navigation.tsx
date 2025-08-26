@@ -56,14 +56,14 @@ export default function Navigation() {
   );
 
   return (
-    <nav className="bg-white shadow-lg sticky top-0 z-50">
+    <nav className="bg-white shadow-xl sticky top-0 z-50 border-b border-gray-100">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <div className="flex items-center space-x-2">
             <Plane className="h-8 w-8 text-primary" />
             <span className="text-2xl font-bold text-primary" data-testid="logo">
-              TamilSky Airways
+              MacAirlines
             </span>
           </div>
 

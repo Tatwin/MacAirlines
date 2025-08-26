@@ -113,16 +113,16 @@ export default function HomePage() {
                     </div>
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="Chennai (MAA)">Chennai (MAA)</SelectItem>
-                    <SelectItem value="Coimbatore (CJB)">Coimbatore (CJB)</SelectItem>
-                    <SelectItem value="Madurai (IXM)">Madurai (IXM)</SelectItem>
-                    <SelectItem value="Trichy (TRZ)">Trichy (TRZ)</SelectItem>
-                    <SelectItem value="Bangalore (BLR)">Bangalore (BLR)</SelectItem>
-                    <SelectItem value="Delhi (DEL)">Delhi (DEL)</SelectItem>
                     <SelectItem value="Mumbai (BOM)">Mumbai (BOM)</SelectItem>
+                    <SelectItem value="Delhi (DEL)">Delhi (DEL)</SelectItem>
+                    <SelectItem value="Bangalore (BLR)">Bangalore (BLR)</SelectItem>
+                    <SelectItem value="Chennai (MAA)">Chennai (MAA)</SelectItem>
                     <SelectItem value="Hyderabad (HYD)">Hyderabad (HYD)</SelectItem>
-                    <SelectItem value="Kochi (COK)">Kochi (COK)</SelectItem>
                     <SelectItem value="Pune (PNQ)">Pune (PNQ)</SelectItem>
+                    <SelectItem value="Kochi (COK)">Kochi (COK)</SelectItem>
+                    <SelectItem value="Ahmedabad (AMD)">Ahmedabad (AMD)</SelectItem>
+                    <SelectItem value="Kolkata (CCU)">Kolkata (CCU)</SelectItem>
+                    <SelectItem value="Goa (GOI)">Goa (GOI)</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -138,16 +138,16 @@ export default function HomePage() {
                     </div>
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="Chennai (MAA)">Chennai (MAA)</SelectItem>
-                    <SelectItem value="Coimbatore (CJB)">Coimbatore (CJB)</SelectItem>
-                    <SelectItem value="Madurai (IXM)">Madurai (IXM)</SelectItem>
-                    <SelectItem value="Trichy (TRZ)">Trichy (TRZ)</SelectItem>
-                    <SelectItem value="Bangalore (BLR)">Bangalore (BLR)</SelectItem>
-                    <SelectItem value="Delhi (DEL)">Delhi (DEL)</SelectItem>
                     <SelectItem value="Mumbai (BOM)">Mumbai (BOM)</SelectItem>
+                    <SelectItem value="Delhi (DEL)">Delhi (DEL)</SelectItem>
+                    <SelectItem value="Bangalore (BLR)">Bangalore (BLR)</SelectItem>
+                    <SelectItem value="Chennai (MAA)">Chennai (MAA)</SelectItem>
                     <SelectItem value="Hyderabad (HYD)">Hyderabad (HYD)</SelectItem>
-                    <SelectItem value="Kochi (COK)">Kochi (COK)</SelectItem>
                     <SelectItem value="Pune (PNQ)">Pune (PNQ)</SelectItem>
+                    <SelectItem value="Kochi (COK)">Kochi (COK)</SelectItem>
+                    <SelectItem value="Ahmedabad (AMD)">Ahmedabad (AMD)</SelectItem>
+                    <SelectItem value="Kolkata (CCU)">Kolkata (CCU)</SelectItem>
+                    <SelectItem value="Goa (GOI)">Goa (GOI)</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -214,10 +214,10 @@ export default function HomePage() {
       <div className="max-w-7xl mx-auto px-4 py-16">
         <div className="text-center mb-12">
           <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-            Why Choose TamilSky Airways?
+            Why Choose MacAirlines?
           </h2>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Experience seamless booking with India's most trusted airline
+            Experience seamless booking with India's premier airline service
           </p>
         </div>
 
@@ -261,7 +261,7 @@ export default function HomePage() {
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {isLoading ? (
               Array.from({ length: 6 }).map((_, i) => (
-                <Card key={i} className="animate-pulse">
+                <Card key={i} className="animate-pulse shadow-lg">
                   <CardContent className="p-6">
                     <div className="h-4 bg-gray-200 rounded mb-4"></div>
                     <div className="h-4 bg-gray-200 rounded mb-2"></div>
@@ -271,7 +271,7 @@ export default function HomePage() {
               ))
             ) : (
               flights?.slice(0, 6).map((flight: Flight) => (
-                <Card key={flight.id} className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => {
+                <Card key={flight.id} className="card-hover shadow-lg transition-all duration-300 cursor-pointer border border-gray-200" onClick={() => {
                   if (isAuthenticated) {
                     navigate(`/booking?from=${encodeURIComponent(flight.origin)}&to=${encodeURIComponent(flight.destination)}&departureDate=${flight.departureTime.toString().split('T')[0]}`);
                   } else {

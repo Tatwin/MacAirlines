@@ -281,8 +281,8 @@ export default function BookingPage() {
                       <Input
                         id="dateOfBirth"
                         type="date"
-                        value={passengerData.dateOfBirth ? new Date(passengerData.dateOfBirth).toISOString().split('T')[0] : ''}
-                        onChange={(e) => setPassengerData(prev => ({ ...prev, dateOfBirth: e.target.value ? new Date(e.target.value) : null }))}
+                        value={passengerData.dateOfBirth || ''}
+                        onChange={(e) => setPassengerData(prev => ({ ...prev, dateOfBirth: e.target.value }))}
                         data-testid="passenger-dob-input"
                       />
                     </div>
@@ -293,12 +293,16 @@ export default function BookingPage() {
                           <SelectValue placeholder="Select nationality" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="US">United States</SelectItem>
-                          <SelectItem value="CA">Canada</SelectItem>
-                          <SelectItem value="UK">United Kingdom</SelectItem>
-                          <SelectItem value="AU">Australia</SelectItem>
-                          <SelectItem value="DE">Germany</SelectItem>
-                          <SelectItem value="FR">France</SelectItem>
+                          <SelectItem value="IN">Indian</SelectItem>
+                          <SelectItem value="US">American</SelectItem>
+                          <SelectItem value="UK">British</SelectItem>
+                          <SelectItem value="CA">Canadian</SelectItem>
+                          <SelectItem value="AU">Australian</SelectItem>
+                          <SelectItem value="DE">German</SelectItem>
+                          <SelectItem value="FR">French</SelectItem>
+                          <SelectItem value="JP">Japanese</SelectItem>
+                          <SelectItem value="SG">Singaporean</SelectItem>
+                          <SelectItem value="AE">Emirati</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
