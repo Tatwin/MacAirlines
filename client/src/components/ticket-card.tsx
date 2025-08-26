@@ -1,7 +1,7 @@
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
-import { Plane, Calendar, Clock, MapPin, User, Download, AlertCircle } from 'lucide-react';
+import { Plane, Calendar, Clock, MapPin, User, Download, AlertCircle, IndianRupee } from 'lucide-react';
 import type { Ticket, Flight, Passenger } from '@shared/schema';
 
 interface TicketCardProps {
@@ -12,10 +12,10 @@ interface TicketCardProps {
 
 export default function TicketCard({ ticket, onDownload, onCancel }: TicketCardProps) {
   const formatTime = (dateTime: string) => {
-    return new Date(dateTime).toLocaleTimeString('en-US', {
+    return new Date(dateTime).toLocaleTimeString('en-IN', {
       hour: '2-digit',
       minute: '2-digit',
-      hour12: false,
+      hour12: true,
     });
   };
 
@@ -155,7 +155,10 @@ export default function TicketCard({ ticket, onDownload, onCancel }: TicketCardP
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-600">Amount:</span>
-                <span className="font-medium">${parseFloat(ticket.price).toFixed(2)}</span>
+                <span className="font-medium flex items-center">
+                  <IndianRupee className="h-4 w-4 mr-1" />
+                  {new Intl.NumberFormat('en-IN').format(parseFloat(ticket.price))}
+                </span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-600">Booked:</span>

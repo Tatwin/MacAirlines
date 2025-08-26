@@ -20,7 +20,7 @@ import {
   Trash2, 
   Eye,
   UserPlus,
-  DollarSign
+  IndianRupee
 } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -301,12 +301,13 @@ export default function EmployeeDashboard() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-gray-500">Revenue Today</p>
-                  <p className="text-2xl font-bold text-gray-900" data-testid="today-revenue">
-                    ${stats.todayRevenue.toFixed(2)}
+                  <p className="text-2xl font-bold text-gray-900 flex items-center" data-testid="today-revenue">
+                    <IndianRupee className="h-5 w-5 mr-1" />
+                    {new Intl.NumberFormat('en-IN').format(stats.todayRevenue)}
                   </p>
                 </div>
                 <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
-                  <DollarSign className="h-6 w-6 text-purple-600" />
+                  <IndianRupee className="h-6 w-6 text-purple-600" />
                 </div>
               </div>
             </CardContent>

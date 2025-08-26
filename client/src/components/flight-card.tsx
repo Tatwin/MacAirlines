@@ -1,6 +1,6 @@
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Plane, Clock, Users } from 'lucide-react';
+import { Plane, Clock, Users, IndianRupee } from 'lucide-react';
 import type { Flight } from '@shared/schema';
 
 interface FlightCardProps {
@@ -11,10 +11,10 @@ interface FlightCardProps {
 
 export default function FlightCard({ flight, onSelect, isSelected = false }: FlightCardProps) {
   const formatTime = (dateTime: string) => {
-    return new Date(dateTime).toLocaleTimeString('en-US', {
+    return new Date(dateTime).toLocaleTimeString('en-IN', {
       hour: '2-digit',
       minute: '2-digit',
-      hour12: false,
+      hour12: true,
     });
   };
 
@@ -126,8 +126,9 @@ export default function FlightCard({ flight, onSelect, isSelected = false }: Fli
         {/* Price and Action */}
         <div className="flex items-center justify-between pt-4 border-t">
           <div className="text-left">
-            <div className="text-2xl font-bold text-primary">
-              ${parseFloat(flight.basePrice).toFixed(0)}
+            <div className="text-2xl font-bold text-primary flex items-center">
+              <IndianRupee className="h-5 w-5 mr-1" />
+              {new Intl.NumberFormat('en-IN').format(parseFloat(flight.basePrice))}
             </div>
             <div className="text-sm text-gray-500">per person</div>
           </div>

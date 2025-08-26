@@ -63,7 +63,7 @@ export default function Navigation() {
           <div className="flex items-center space-x-2">
             <Plane className="h-8 w-8 text-primary" />
             <span className="text-2xl font-bold text-primary" data-testid="logo">
-              MACAirlines
+              TamilSky Airways
             </span>
           </div>
 

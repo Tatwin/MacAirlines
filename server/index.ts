@@ -38,8 +38,16 @@ app.use((req, res, next) => {
 });
 
 (async () => {
-  // Seed database with Tamil Nadu data
-  await seedDatabase();
+  // Seed database with Tamil Nadu data only if empty
+  const { db } = await import("./db");
+  const { users } = await import("@shared/schema");
+  const existingUsers = await db.select().from(users).limit(1);
+  
+  if (existingUsers.length === 0) {
+    await seedDatabase();
+  } else {
+    console.log("📊 Database already seeded, skipping...");
+  }
   
   const server = await registerRoutes(app);
 
