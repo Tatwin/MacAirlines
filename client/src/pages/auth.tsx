@@ -74,7 +74,7 @@ export default function AuthPage() {
         className="flex-1"
         data-testid="customer-role-button"
       >
-        Customer
+        வாடிக்கையாளர் (Customer)
       </Button>
       <Button
         type="button"
@@ -83,7 +83,7 @@ export default function AuthPage() {
         className="flex-1"
         data-testid="employee-role-button"
       >
-        Employee
+        ஊழியர் (Employee)
       </Button>
     </div>
   );
@@ -94,9 +94,10 @@ export default function AuthPage() {
         <CardHeader className="text-center">
           <div className="flex items-center justify-center mb-4">
             <Plane className="h-8 w-8 text-primary mr-2" />
-            <span className="text-2xl font-bold text-primary">MACAirlines</span>
+            <span className="text-2xl font-bold text-primary">TamilSky Airways</span>
           </div>
-          <CardTitle className="text-2xl">Welcome</CardTitle>
+          <CardTitle className="text-2xl">வணக்கம் - Welcome</CardTitle>
+          <p className="text-sm text-muted-foreground">Your gateway to Tamil Nadu skies</p>
         </CardHeader>
         
         <CardContent>
@@ -256,7 +257,8 @@ export default function AuthPage() {
                             placeholder="Phone number" 
                             type="tel" 
                             data-testid="signup-phone-input"
-                            {...field} 
+                            {...field}
+                            value={field.value || ""} 
                           />
                         </FormControl>
                         <FormMessage />
