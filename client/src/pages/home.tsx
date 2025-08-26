@@ -17,10 +17,10 @@ export default function HomePage() {
   const [searchForm, setSearchForm] = useState({
     from: '',
     to: '',
-    departureDate: new Date().toISOString().split('T')[0], // Set to today's date
+    departureDate: '',
     returnDate: '',
     passengers: '1',
-    tripType: 'one-way' as 'one-way' | 'round-trip'
+    tripType: 'round-trip'
   });
 
   // Fetch upcoming flights
@@ -153,13 +153,12 @@ export default function HomePage() {
               </div>
 
               {/* Departure Date */}
-              <div>
-                <Label htmlFor="departureDate">Departure Date</Label>
+              <div className="space-y-2">
+                <Label htmlFor="departureDate">Departure</Label>
                 <Input
                   id="departureDate"
                   type="date"
                   value={searchForm.departureDate}
-                  min={new Date().toISOString().split('T')[0]} // Prevent selecting past dates
                   onChange={(e) => handleInputChange('departureDate', e.target.value)}
                   data-testid="departure-date-input"
                 />
@@ -167,13 +166,12 @@ export default function HomePage() {
 
               {/* Return Date */}
               {searchForm.tripType === 'round-trip' && (
-                <div>
-                  <Label htmlFor="returnDate">Return Date</Label>
+                <div className="space-y-2">
+                  <Label htmlFor="returnDate">Return</Label>
                   <Input
                     id="returnDate"
                     type="date"
                     value={searchForm.returnDate}
-                    min={searchForm.departureDate || new Date().toISOString().split('T')[0]} // Must be after departure date
                     onChange={(e) => handleInputChange('returnDate', e.target.value)}
                     data-testid="return-date-input"
                   />
@@ -272,78 +270,69 @@ export default function HomePage() {
                 </Card>
               ))
             ) : (
-              flights?.slice(0, 6).map((flight: Flight) => {
-                // Filter out flights that have already passed
-                const departureDateTime = new Date(flight.departureTime);
-                const now = new Date();
-                if (departureDateTime < now) {
-                  return null; // Skip rendering this flight
-                }
-
-                return (
-                  <Card key={flight.id} className="card-hover shadow-lg transition-all duration-300 cursor-pointer border border-gray-200" onClick={() => {
-                    if (isAuthenticated) {
-                      navigate(`/booking?from=${encodeURIComponent(flight.origin)}&to=${encodeURIComponent(flight.destination)}&departureDate=${flight.departureTime.toString().split('T')[0]}`);
-                    } else {
-                      navigate('/auth');
-                    }
-                  }}>
-                    <CardContent className="p-6">
-                      <div className="flex items-center justify-between mb-4">
-                        <div className="flex items-center space-x-2">
-                          <Plane className="h-5 w-5 text-primary" />
-                          <span className="font-semibold text-lg">{flight.flightNumber}</span>
-                        </div>
-                        <span className="text-sm text-gray-500">{flight.airline}</span>
+              flights?.slice(0, 6).map((flight: Flight) => (
+                <Card key={flight.id} className="card-hover shadow-lg transition-all duration-300 cursor-pointer border border-gray-200" onClick={() => {
+                  if (isAuthenticated) {
+                    navigate(`/booking?from=${encodeURIComponent(flight.origin)}&to=${encodeURIComponent(flight.destination)}&departureDate=${flight.departureTime.toString().split('T')[0]}`);
+                  } else {
+                    navigate('/auth');
+                  }
+                }}>
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center space-x-2">
+                        <Plane className="h-5 w-5 text-primary" />
+                        <span className="font-semibold text-lg">{flight.flightNumber}</span>
                       </div>
-
-                      <div className="flex items-center justify-between mb-4">
-                        <div className="flex items-center space-x-2">
-                          <MapPin className="h-4 w-4 text-gray-400" />
-                          <span className="text-sm font-medium">{flight.origin}</span>
-                        </div>
-                        <div className="text-center">
-                          <div className="w-8 h-px bg-gray-300 mb-1"></div>
-                          <Plane className="h-4 w-4 text-gray-400 mx-auto" />
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <span className="text-sm font-medium">{flight.destination}</span>
-                          <MapPin className="h-4 w-4 text-gray-400" />
-                        </div>
+                      <span className="text-sm text-gray-500">{flight.airline}</span>
+                    </div>
+                    
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center space-x-2">
+                        <MapPin className="h-4 w-4 text-gray-400" />
+                        <span className="text-sm font-medium">{flight.origin}</span>
                       </div>
-
-                      <div className="flex items-center justify-between mb-4">
-                        <div className="text-sm text-gray-500">
-                          <Clock className="h-4 w-4 inline mr-1" />
-                          {new Date(flight.departureTime).toLocaleTimeString('en-IN', { 
-                            hour: '2-digit', 
-                            minute: '2-digit',
-                            hour12: true 
-                          })}
-                        </div>
-                        <div className="text-sm text-gray-500">
-                          {Math.floor(flight.duration / 60)}h {flight.duration % 60}m
-                        </div>
+                      <div className="text-center">
+                        <div className="w-8 h-px bg-gray-300 mb-1"></div>
+                        <Plane className="h-4 w-4 text-gray-400 mx-auto" />
                       </div>
-
-                      <div className="flex items-center justify-between">
-                        <div className="text-sm text-green-600">
-                          {flight.availableSeats} seats available
-                        </div>
-                        <div className="flex items-center space-x-1">
-                          <IndianRupee className="h-4 w-4 text-primary" />
-                          <span className="text-lg font-bold text-primary">
-                            {new Intl.NumberFormat('en-IN').format(parseFloat(flight.basePrice))}
-                          </span>
-                        </div>
+                      <div className="flex items-center space-x-2">
+                        <span className="text-sm font-medium">{flight.destination}</span>
+                        <MapPin className="h-4 w-4 text-gray-400" />
                       </div>
-                    </CardContent>
-                  </Card>
-                )
-              })
+                    </div>
+                    
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="text-sm text-gray-500">
+                        <Clock className="h-4 w-4 inline mr-1" />
+                        {new Date(flight.departureTime).toLocaleTimeString('en-IN', { 
+                          hour: '2-digit', 
+                          minute: '2-digit',
+                          hour12: true 
+                        })}
+                      </div>
+                      <div className="text-sm text-gray-500">
+                        {Math.floor(flight.duration / 60)}h {flight.duration % 60}m
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center justify-between">
+                      <div className="text-sm text-green-600">
+                        {flight.availableSeats} seats available
+                      </div>
+                      <div className="flex items-center space-x-1">
+                        <IndianRupee className="h-4 w-4 text-primary" />
+                        <span className="text-lg font-bold text-primary">
+                          {new Intl.NumberFormat('en-IN').format(parseFloat(flight.basePrice))}
+                        </span>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))
             )}
           </div>
-
+          
           {!isAuthenticated && (
             <div className="text-center mt-8">
               <p className="text-gray-600 mb-4">Sign in to book flights and manage your bookings</p>
