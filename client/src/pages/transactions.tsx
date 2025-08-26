@@ -6,7 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { useLocation } from 'wouter';
-import { IndianRupee, Receipt, Clock, Download, Eye } from 'lucide-react';
+import { IndianRupee, Receipt, Clock, Download, Eye, DollarSign } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import type { Transaction } from '@shared/schema';
 
