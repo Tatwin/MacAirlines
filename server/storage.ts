@@ -5,7 +5,7 @@ import {
   type InsertTicket, type InsertTransaction, type InsertSeat
 } from "@shared/schema";
 import { db } from "./db";
-import { eq, and, like, desc } from "drizzle-orm";
+import { eq, and, like, desc, sql } from "drizzle-orm";
 import bcrypt from "bcrypt";
 import { randomUUID } from "crypto";
 
@@ -76,10 +76,7 @@ export class DatabaseStorage implements IStorage {
 
   // Flight methods
   async getAllFlights(): Promise<Flight[]> {
-    const now = new Date();
-    return await db.select().from(flights)
-      .where(sql`${flights.departureTime} > ${now}`)
-      .orderBy(flights.departureTime);
+    return await db.select().from(flights).orderBy(flights.departureTime);
   }
 
   async getFlight(id: string): Promise<Flight | undefined> {
@@ -93,11 +90,9 @@ export class DatabaseStorage implements IStorage {
   }
 
   async searchFlights(origin: string, destination: string, departureDate?: Date): Promise<Flight[]> {
-    const now = new Date();
     let whereConditions = [
       like(flights.origin, `%${origin}%`),
-      like(flights.destination, `%${destination}%`),
-      sql`${flights.departureTime} > ${now}`
+      like(flights.destination, `%${destination}%`)
     ];
 
     if (departureDate) {
