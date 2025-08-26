@@ -57,8 +57,8 @@ export async function seedDatabase() {
         aircraft: "Airbus A320",
         origin: "Chennai (MAA)",
         destination: "Coimbatore (CJB)",
-        departureTime: new Date("2025-01-27 06:30:00"),
-        arrivalTime: new Date("2025-01-27 07:45:00"),
+        departureTime: new Date(Date.now() + 24 * 60 * 60 * 1000), // Tomorrow
+        arrivalTime: new Date(Date.now() + 25 * 60 * 60 * 1000 + 15 * 60 * 1000), // Tomorrow + 1h 15m
         duration: 75,
         basePrice: "4500.00",
         totalSeats: 180,
@@ -72,8 +72,8 @@ export async function seedDatabase() {
         aircraft: "Airbus A320neo",
         origin: "Chennai (MAA)",
         destination: "Trichy (TRZ)",
-        departureTime: new Date("2025-01-27 09:15:00"),
-        arrivalTime: new Date("2025-01-27 10:15:00"),
+        departureTime: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000), // Day after tomorrow
+        arrivalTime: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000 + 60 * 60 * 1000), // Day after tomorrow + 1h
         duration: 60,
         basePrice: "3800.00",
         totalSeats: 186,
@@ -87,8 +87,8 @@ export async function seedDatabase() {
         aircraft: "Boeing 737-800",
         origin: "Madurai (IXM)",
         destination: "Chennai (MAA)",
-        departureTime: new Date("2025-01-27 14:20:00"),
-        arrivalTime: new Date("2025-01-27 15:35:00"),
+        departureTime: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000), // 3 days from now
+        arrivalTime: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000 + 75 * 60 * 1000), // 3 days + 1h 15m
         duration: 75,
         basePrice: "4200.00",
         totalSeats: 189,
@@ -102,8 +102,8 @@ export async function seedDatabase() {
         aircraft: "Boeing 787",
         origin: "Chennai (MAA)",
         destination: "Delhi (DEL)",
-        departureTime: new Date("2025-01-27 07:45:00"),
-        arrivalTime: new Date("2025-01-27 10:30:00"),
+        departureTime: new Date(Date.now() + 4 * 24 * 60 * 60 * 1000), // 4 days from now
+        arrivalTime: new Date(Date.now() + 4 * 24 * 60 * 60 * 1000 + 165 * 60 * 1000), // 4 days + 2h 45m
         duration: 165,
         basePrice: "8900.00",
         totalSeats: 300,
@@ -117,8 +117,8 @@ export async function seedDatabase() {
         aircraft: "Airbus A321",
         origin: "Coimbatore (CJB)",
         destination: "Bangalore (BLR)",
-        departureTime: new Date("2025-01-27 11:40:00"),
-        arrivalTime: new Date("2025-01-27 12:25:00"),
+        departureTime: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000), // 5 days from now
+        arrivalTime: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000 + 45 * 60 * 1000), // 5 days + 45m
         duration: 45,
         basePrice: "3500.00",
         totalSeats: 220,
@@ -132,8 +132,8 @@ export async function seedDatabase() {
         aircraft: "Boeing 737",
         origin: "Chennai (MAA)",
         destination: "Mumbai (BOM)",
-        departureTime: new Date("2025-01-27 16:00:00"),
-        arrivalTime: new Date("2025-01-27 18:15:00"),
+        departureTime: new Date(Date.now() + 6 * 24 * 60 * 60 * 1000), // 6 days from now
+        arrivalTime: new Date(Date.now() + 6 * 24 * 60 * 60 * 1000 + 135 * 60 * 1000), // 6 days + 2h 15m
         duration: 135,
         basePrice: "6800.00",
         totalSeats: 189,
@@ -147,8 +147,8 @@ export async function seedDatabase() {
         aircraft: "Airbus A319",
         origin: "Trichy (TRZ)",
         destination: "Chennai (MAA)",
-        departureTime: new Date("2025-01-28 08:30:00"),
-        arrivalTime: new Date("2025-01-28 09:30:00"),
+        departureTime: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days from now
+        arrivalTime: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000 + 60 * 60 * 1000), // 7 days + 1h
         duration: 60,
         basePrice: "3900.00",
         totalSeats: 144,
@@ -162,8 +162,8 @@ export async function seedDatabase() {
         aircraft: "Airbus A320neo",
         origin: "Chennai (MAA)",
         destination: "Hyderabad (HYD)",
-        departureTime: new Date("2025-01-28 12:45:00"),
-        arrivalTime: new Date("2025-01-28 14:10:00"),
+        departureTime: new Date(Date.now() + 8 * 24 * 60 * 60 * 1000), // 8 days from now
+        arrivalTime: new Date(Date.now() + 8 * 24 * 60 * 60 * 1000 + 85 * 60 * 1000), // 8 days + 1h 25m
         duration: 85,
         basePrice: "5200.00",
         totalSeats: 158,

@@ -14,7 +14,7 @@ interface TicketCardProps {
   onManageBooking?: (ticketId: string) => void;
 }
 
-export default function TicketCard({ 
+export function TicketCard({ 
   ticket, 
   onDownload, 
   onCancel, 
@@ -287,3 +287,5 @@ export default function TicketCard({
     </Card>
   );
 }
+
+export default TicketCard;

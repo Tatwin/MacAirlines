@@ -76,7 +76,10 @@ export class DatabaseStorage implements IStorage {
 
   // Flight methods
   async getAllFlights(): Promise<Flight[]> {
-    return await db.select().from(flights).orderBy(desc(flights.departureTime));
+    const now = new Date();
+    return await db.select().from(flights)
+      .where(sql`${flights.departureTime} > ${now}`)
+      .orderBy(flights.departureTime);
   }
 
   async getFlight(id: string): Promise<Flight | undefined> {
@@ -90,18 +93,27 @@ export class DatabaseStorage implements IStorage {
   }
 
   async searchFlights(origin: string, destination: string, departureDate?: Date): Promise<Flight[]> {
-    let query = db.select().from(flights)
-      .where(and(
-        like(flights.origin, `%${origin}%`),
-        like(flights.destination, `%${destination}%`)
-      ));
+    const now = new Date();
+    let whereConditions = [
+      like(flights.origin, `%${origin}%`),
+      like(flights.destination, `%${destination}%`),
+      sql`${flights.departureTime} > ${now}`
+    ];
 
-    // Remove departureDate filtering for now - this needs proper implementation
-    // if (departureDate) {
-    //   // TODO: Implement proper date range filtering
-    // }
+    if (departureDate) {
+      const startOfDay = new Date(departureDate);
+      startOfDay.setHours(0, 0, 0, 0);
+      const endOfDay = new Date(departureDate);
+      endOfDay.setHours(23, 59, 59, 999);
+      
+      whereConditions.push(
+        sql`${flights.departureTime} >= ${startOfDay} AND ${flights.departureTime} <= ${endOfDay}`
+      );
+    }
 
-    return await query.orderBy(flights.departureTime);
+    return await db.select().from(flights)
+      .where(and(...whereConditions))
+      .orderBy(flights.departureTime);
   }
 
   async createFlight(flight: InsertFlight): Promise<Flight> {
