@@ -56,7 +56,7 @@ export default function HomePage() {
         >
           <div className="absolute inset-0 flex items-center justify-center">
             <div className="text-center text-white max-w-4xl mx-auto px-4">
-              <h1 className="text-4xl md:text-6xl font-bold mb-4">Book Your Perfect Flight</h1>
+              <h1 className="text-4xl md:text-6xl font-bold mb-4">MACAirlines - Book Your Perfect Flight</h1>
               <p className="text-xl md:text-2xl mb-8 text-blue-100">
                 Discover amazing destinations and book with confidence
               </p>
@@ -96,33 +96,51 @@ export default function HomePage() {
               {/* From Location */}
               <div className="space-y-2">
                 <Label htmlFor="from">From</Label>
-                <div className="relative">
-                  <Plane className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                  <Input
-                    id="from"
-                    placeholder="Departure city"
-                    className="pl-10"
-                    value={searchForm.from}
-                    onChange={(e) => handleInputChange('from', e.target.value)}
-                    data-testid="from-input"
-                  />
-                </div>
+                <Select value={searchForm.from} onValueChange={(value) => handleInputChange('from', value)}>
+                  <SelectTrigger data-testid="from-select">
+                    <div className="flex items-center">
+                      <Plane className="mr-2 h-4 w-4 text-gray-400" />
+                      <SelectValue placeholder="Select departure city" />
+                    </div>
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="New York (JFK)">New York (JFK)</SelectItem>
+                    <SelectItem value="Los Angeles (LAX)">Los Angeles (LAX)</SelectItem>
+                    <SelectItem value="Chicago (ORD)">Chicago (ORD)</SelectItem>
+                    <SelectItem value="Miami (MIA)">Miami (MIA)</SelectItem>
+                    <SelectItem value="London (LHR)">London (LHR)</SelectItem>
+                    <SelectItem value="Paris (CDG)">Paris (CDG)</SelectItem>
+                    <SelectItem value="Tokyo (NRT)">Tokyo (NRT)</SelectItem>
+                    <SelectItem value="Dubai (DXB)">Dubai (DXB)</SelectItem>
+                    <SelectItem value="Singapore (SIN)">Singapore (SIN)</SelectItem>
+                    <SelectItem value="Sydney (SYD)">Sydney (SYD)</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
 
               {/* To Location */}
               <div className="space-y-2">
                 <Label htmlFor="to">To</Label>
-                <div className="relative">
-                  <Plane className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                  <Input
-                    id="to"
-                    placeholder="Destination city"
-                    className="pl-10"
-                    value={searchForm.to}
-                    onChange={(e) => handleInputChange('to', e.target.value)}
-                    data-testid="to-input"
-                  />
-                </div>
+                <Select value={searchForm.to} onValueChange={(value) => handleInputChange('to', value)}>
+                  <SelectTrigger data-testid="to-select">
+                    <div className="flex items-center">
+                      <Plane className="mr-2 h-4 w-4 text-gray-400" />
+                      <SelectValue placeholder="Select destination city" />
+                    </div>
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="New York (JFK)">New York (JFK)</SelectItem>
+                    <SelectItem value="Los Angeles (LAX)">Los Angeles (LAX)</SelectItem>
+                    <SelectItem value="Chicago (ORD)">Chicago (ORD)</SelectItem>
+                    <SelectItem value="Miami (MIA)">Miami (MIA)</SelectItem>
+                    <SelectItem value="London (LHR)">London (LHR)</SelectItem>
+                    <SelectItem value="Paris (CDG)">Paris (CDG)</SelectItem>
+                    <SelectItem value="Tokyo (NRT)">Tokyo (NRT)</SelectItem>
+                    <SelectItem value="Dubai (DXB)">Dubai (DXB)</SelectItem>
+                    <SelectItem value="Singapore (SIN)">Singapore (SIN)</SelectItem>
+                    <SelectItem value="Sydney (SYD)">Sydney (SYD)</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
 
               {/* Departure Date */}
@@ -187,7 +205,7 @@ export default function HomePage() {
       <div className="max-w-7xl mx-auto px-4 py-16">
         <div className="text-center mb-12">
           <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-            Why Choose SkyReserve?
+            Why Choose MACAirlines?
           </h2>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
             Experience seamless booking with our advanced reservation system

@@ -63,7 +63,7 @@ export default function Navigation() {
           <div className="flex items-center space-x-2">
             <Plane className="h-8 w-8 text-primary" />
             <span className="text-2xl font-bold text-primary" data-testid="logo">
-              SkyReserve
+              MACAirlines
             </span>
           </div>
 
@@ -94,8 +94,8 @@ export default function Navigation() {
                     <span>Profile</span>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem 
-                    className="flex items-center space-x-2 text-red-600" 
+                  <DropdownMenuItem
+                    className="flex items-center space-x-2 text-red-600"
                     onClick={logout}
                     data-testid="logout-button"
                   >
@@ -125,7 +125,7 @@ export default function Navigation() {
               <SheetContent side="right" className="w-[300px]">
                 <div className="flex flex-col space-y-4 mt-8">
                   <NavLinks mobile onItemClick={() => setIsMobileMenuOpen(false)} />
-                  
+
                   {!isAuthenticated && (
                     <div className="pt-4 border-t">
                       <Link href="/auth" onClick={() => setIsMobileMenuOpen(false)}>

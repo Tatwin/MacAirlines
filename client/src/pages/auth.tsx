@@ -94,7 +94,7 @@ export default function AuthPage() {
         <CardHeader className="text-center">
           <div className="flex items-center justify-center mb-4">
             <Plane className="h-8 w-8 text-primary mr-2" />
-            <span className="text-2xl font-bold text-primary">SkyReserve</span>
+            <span className="text-2xl font-bold text-primary">MACAirlines</span>
           </div>
           <CardTitle className="text-2xl">Welcome</CardTitle>
         </CardHeader>
