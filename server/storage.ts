@@ -1,7 +1,7 @@
-import { 
+import {
   users, flights, passengers, tickets, transactions, seats,
   type User, type Flight, type Passenger, type Ticket, type Transaction, type Seat,
-  type InsertUser, type InsertFlight, type InsertPassenger, 
+  type InsertUser, type InsertFlight, type InsertPassenger,
   type InsertTicket, type InsertTransaction, type InsertSeat
 } from "@shared/schema";
 import { db } from "./db";
@@ -14,7 +14,7 @@ export interface IStorage {
   getUser(id: string): Promise<User | undefined>;
   getUserByEmail(email: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
-  
+
   // Flight methods
   getAllFlights(): Promise<Flight[]>;
   getFlight(id: string): Promise<Flight | undefined>;
@@ -23,7 +23,7 @@ export interface IStorage {
   createFlight(flight: InsertFlight): Promise<Flight>;
   updateFlight(id: string, flight: Partial<InsertFlight>): Promise<Flight | undefined>;
   deleteFlight(id: string): Promise<boolean>;
-  
+
   // Passenger methods
   getAllPassengers(): Promise<Passenger[]>;
   getPassenger(id: string): Promise<Passenger | undefined>;
@@ -32,7 +32,7 @@ export interface IStorage {
   createPassenger(passenger: InsertPassenger): Promise<Passenger>;
   updatePassenger(id: string, passenger: Partial<InsertPassenger>): Promise<Passenger | undefined>;
   deletePassenger(id: string): Promise<boolean>;
-  
+
   // Ticket methods
   getAllTickets(): Promise<(Ticket & { flight: Flight; passenger: Passenger })[]>;
   getTicket(id: string): Promise<(Ticket & { flight: Flight; passenger: Passenger }) | undefined>;
@@ -41,11 +41,11 @@ export interface IStorage {
   createTicket(ticket: InsertTicket): Promise<Ticket>;
   updateTicket(id: string, ticket: Partial<InsertTicket>): Promise<Ticket | undefined>;
   deleteTicket(id: string): Promise<boolean>;
-  
+
   // Transaction methods
   getTransactionsByUserId(userId: string): Promise<Transaction[]>;
   createTransaction(transaction: InsertTransaction): Promise<Transaction>;
-  
+
   // Seat methods
   getSeatsByFlightId(flightId: string): Promise<Seat[]>;
   getSeat(flightId: string, seatNumber: string): Promise<Seat | undefined>;
@@ -109,10 +109,10 @@ export class DatabaseStorage implements IStorage {
       .insert(flights)
       .values(flight)
       .returning();
-    
+
     // Create seats for the flight
     await this.createSeatsForFlight(newFlight.id);
-    
+
     return newFlight;
   }
 
@@ -295,8 +295,13 @@ export class DatabaseStorage implements IStorage {
   }
 
   async deleteTicket(id: string): Promise<boolean> {
-    const result = await db.delete(tickets).where(eq(tickets.id, id));
-    return (result.rowCount ?? 0) > 0;
+    try {
+      const result = await db.delete(tickets).where(eq(tickets.id, id));
+      return (result.rowCount ?? 0) > 0;
+    } catch (error) {
+      console.error('Error deleting ticket:', error);
+      return false;
+    }
   }
 
   // Transaction methods

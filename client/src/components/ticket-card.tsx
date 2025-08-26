@@ -1,31 +1,56 @@
+
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
-import { Plane, Calendar, Clock, MapPin, User, Download, AlertCircle, IndianRupee } from 'lucide-react';
+import { Plane, Calendar, Clock, MapPin, User, Download, AlertCircle, IndianRupee, Settings, UserCheck, CreditCard, Eye } from 'lucide-react';
 import type { Ticket, Flight, Passenger } from '@shared/schema';
 
 interface TicketCardProps {
-  ticket: Ticket & { flight: Flight; passenger: Passenger };
-  onDownload?: (ticketId: string) => void;
-  onCancel?: (ticketId: string) => void;
+  ticket: any; // Using any since the ticket comes with joined data
+  onDownload: (ticketId: string) => void;
+  onCancel: (ticketId: string) => void;
+  onCheckIn?: (ticketId: string) => void;
+  onChangeSeat?: (ticketId: string) => void;
+  onViewDetails?: (ticketId: string) => void;
+  onManageBooking?: (ticketId: string) => void;
 }
 
-export default function TicketCard({ ticket, onDownload, onCancel }: TicketCardProps) {
-  const formatTime = (dateTime: string) => {
-    return new Date(dateTime).toLocaleTimeString('en-IN', {
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: true,
+export default function TicketCard({ 
+  ticket, 
+  onDownload, 
+  onCancel, 
+  onCheckIn, 
+  onChangeSeat, 
+  onViewDetails, 
+  onManageBooking 
+}: TicketCardProps) {
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      weekday: 'short',
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
     });
   };
 
-  const formatDate = (dateTime: string) => {
-    return new Date(dateTime).toLocaleDateString('en-US', {
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
+  const formatTime = (dateString: string) => {
+    return new Date(dateString).toLocaleTimeString('en-US', {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false,
     });
+  };
+
+  const getAirportCode = (city: string) => {
+    const airportCodes: { [key: string]: string } = {
+      'Chennai': 'MAA',
+      'Coimbatore': 'CJB',
+      'Madurai': 'IXM',
+      'Tiruchirappalli': 'TRZ',
+      'Salem': 'SXV',
+      'Tuticorin': 'TCR'
+    };
+    return airportCodes[city] || city.substring(0, 3).toUpperCase();
   };
 
   const getStatusColor = (status: string) => {
@@ -43,34 +68,37 @@ export default function TicketCard({ ticket, onDownload, onCancel }: TicketCardP
     }
   };
 
-  const getAirportCode = (location: string) => {
-    const match = location.match(/\(([^)]+)\)/);
-    return match ? match[1] : location.slice(0, 3).toUpperCase();
+  const canCheckIn = () => {
+    const departureTime = new Date(ticket.flight?.departureTime);
+    const now = new Date();
+    const hoursDiff = (departureTime.getTime() - now.getTime()) / (1000 * 3600);
+    return hoursDiff <= 24 && hoursDiff > 2 && ticket.status === 'confirmed';
   };
 
-  const isActiveTicket = ticket.status === 'confirmed' || ticket.status === 'checked_in';
-  const isPastTicket = ticket.status === 'completed' || new Date(ticket.flight.departureTime) < new Date();
+  const canChangeSeat = () => {
+    const departureTime = new Date(ticket.flight?.departureTime);
+    const now = new Date();
+    const hoursDiff = (departureTime.getTime() - now.getTime()) / (1000 * 3600);
+    return hoursDiff > 2 && ticket.status !== 'cancelled';
+  };
 
   return (
-    <Card 
-      className={`overflow-hidden transition-all duration-200 ${isPastTicket ? 'opacity-75' : 'hover:shadow-lg'}`}
-      data-testid={`ticket-card-${ticket.ticketNumber}`}
-    >
-      {/* Ticket Header */}
-      <div className={`p-6 text-white ${isPastTicket ? 'bg-gradient-to-r from-gray-500 to-gray-600' : 'bg-gradient-to-r from-primary to-blue-600'}`}>
-        <div className="flex justify-between items-start">
+    <Card className="overflow-hidden hover:shadow-lg transition-shadow">
+      {/* Header */}
+      <div className="bg-gradient-to-r from-primary to-primary/80 text-primary-foreground p-4">
+        <div className="flex justify-between items-start mb-2">
           <div>
-            <h3 className="text-xl font-bold flex items-center">
-              <Plane className="mr-2 h-5 w-5" />
-              {ticket.flight.airline}
-            </h3>
-            <p className="text-blue-100 mt-1">Electronic Ticket</p>
+            <h3 className="text-lg font-semibold">MACAirlines</h3>
+            <p className="text-sm opacity-90">Flight {ticket.flight?.flightNumber}</p>
           </div>
           <div className="text-right">
-            <div className="text-2xl font-bold">{ticket.ticketNumber}</div>
-            <div className="text-blue-100 text-sm">Ticket Number</div>
+            <div className="text-sm opacity-90">Booking Reference</div>
+            <div className="font-mono font-bold">{ticket.bookingReference}</div>
           </div>
         </div>
+        <Badge className={`${getStatusColor(ticket.status)} text-xs`}>
+          {ticket.status.replace('_', ' ').toUpperCase()}
+        </Badge>
       </div>
 
       <CardContent className="p-6">
@@ -85,38 +113,59 @@ export default function TicketCard({ ticket, onDownload, onCancel }: TicketCardP
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">
                 <span className="text-gray-600">Flight:</span>
-                <span className="font-medium">{ticket.flight.flightNumber}</span>
+                <span className="font-medium">{ticket.flight?.flightNumber}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-600">Date:</span>
-                <span className="font-medium">{formatDate(ticket.flight.departureTime)}</span>
+                <span className="font-medium">{formatDate(ticket.flight?.departureTime)}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-600">Departure:</span>
                 <span className="font-medium">
-                  {formatTime(ticket.flight.departureTime)} {getAirportCode(ticket.flight.origin)}
+                  {formatTime(ticket.flight?.departureTime)} {getAirportCode(ticket.flight?.origin)}
                 </span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-600">Arrival:</span>
                 <span className="font-medium">
-                  {formatTime(ticket.flight.arrivalTime)} {getAirportCode(ticket.flight.destination)}
+                  {formatTime(ticket.flight?.arrivalTime)} {getAirportCode(ticket.flight?.destination)}
                 </span>
               </div>
             </div>
           </div>
 
-          {/* Passenger Details */}
+          {/* Route Visualization */}
+          <div className="flex flex-col items-center justify-center">
+            <div className="flex items-center justify-between w-full mb-4">
+              <div className="text-center">
+                <div className="text-2xl font-bold text-primary">{getAirportCode(ticket.flight?.origin)}</div>
+                <div className="text-sm text-gray-600">{ticket.flight?.origin}</div>
+                <div className="text-xs text-gray-500">{formatTime(ticket.flight?.departureTime)}</div>
+              </div>
+              <div className="flex-1 px-4 relative">
+                <div className="h-px bg-gray-300 relative">
+                  <Plane className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white text-primary px-1 h-4 w-4" />
+                </div>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl font-bold text-primary">{getAirportCode(ticket.flight?.destination)}</div>
+                <div className="text-sm text-gray-600">{ticket.flight?.destination}</div>
+                <div className="text-xs text-gray-500">{formatTime(ticket.flight?.arrivalTime)}</div>
+              </div>
+            </div>
+          </div>
+
+          {/* Passenger & Seat Information */}
           <div>
             <h4 className="font-semibold text-gray-900 mb-3 flex items-center">
               <User className="mr-2 h-4 w-4" />
-              Passenger Information
+              Passenger Details
             </h4>
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">
                 <span className="text-gray-600">Name:</span>
                 <span className="font-medium">
-                  {ticket.passenger.firstName} {ticket.passenger.lastName}
+                  {ticket.passenger?.firstName} {ticket.passenger?.lastName}
                 </span>
               </div>
               <div className="flex justify-between">
@@ -127,152 +176,114 @@ export default function TicketCard({ ticket, onDownload, onCancel }: TicketCardP
                 <span className="text-gray-600">Class:</span>
                 <span className="font-medium capitalize">{ticket.seatClass}</span>
               </div>
-              {ticket.flight.gate && (
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Gate:</span>
-                  <span className="font-medium">{ticket.flight.gate}</span>
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Booking Status */}
-          <div>
-            <h4 className="font-semibold text-gray-900 mb-3 flex items-center">
-              <Calendar className="mr-2 h-4 w-4" />
-              Booking Status
-            </h4>
-            <div className="space-y-2 text-sm">
               <div className="flex justify-between">
-                <span className="text-gray-600">Status:</span>
-                <Badge className={getStatusColor(ticket.status)}>
-                  {ticket.status.replace('_', ' ').toUpperCase()}
-                </Badge>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-600">Booking Ref:</span>
-                <span className="font-medium font-mono">{ticket.bookingReference}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-600">Amount:</span>
-                <span className="font-medium flex items-center">
-                  <IndianRupee className="h-4 w-4 mr-1" />
-                  {new Intl.NumberFormat('en-IN').format(parseFloat(ticket.price))}
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-600">Booked:</span>
-                <span className="font-medium">
-                  {new Date(ticket.createdAt).toLocaleDateString()}
-                </span>
+                <span className="text-gray-600">Ticket No:</span>
+                <span className="font-mono text-xs">{ticket.ticketNumber}</span>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Actions */}
-        <div className="flex flex-col sm:flex-row sm:justify-between items-start sm:items-center pt-6 border-t space-y-3 sm:space-y-0">
-          <div className="flex flex-wrap gap-3">
-            {isActiveTicket && !ticket.checkedIn && (
-              <Button variant="outline" size="sm" className="flex items-center">
-                <AlertCircle className="mr-2 h-4 w-4" />
-                Check In
-              </Button>
-            )}
-            {isActiveTicket && (
-              <>
-                <Button variant="outline" size="sm" className="flex items-center">
-                  <MapPin className="mr-2 h-4 w-4" />
-                  Change Seats
-                </Button>
-                <Button variant="outline" size="sm" className="flex items-center">
-                  <User className="mr-2 h-4 w-4" />
-                  Manage Booking
-                </Button>
-              </>
-            )}
+        {/* Price Information */}
+        <div className="border-t pt-4 mb-6">
+          <div className="flex justify-between items-center">
+            <span className="text-lg font-semibold text-gray-900">Total Amount Paid</span>
+            <div className="flex items-center text-xl font-bold text-primary">
+              <IndianRupee className="h-5 w-5 mr-1" />
+              {new Intl.NumberFormat('en-IN').format(parseFloat(ticket.price))}
+            </div>
           </div>
+        </div>
 
-          <div className="flex space-x-3">
+        {/* Action Buttons */}
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-3">
+          {/* Check-in Button */}
+          <Button 
+            variant={canCheckIn() ? "default" : "secondary"}
+            className="flex items-center justify-center"
+            onClick={() => onCheckIn?.(ticket.id)}
+            disabled={!canCheckIn()}
+          >
+            <UserCheck className="mr-2 h-4 w-4" />
+            {ticket.checkedIn ? 'Checked In' : 'Check In'}
+          </Button>
+
+          {/* Change Seat Button */}
+          <Button 
+            variant="outline"
+            className="flex items-center justify-center"
+            onClick={() => onChangeSeat?.(ticket.id)}
+            disabled={!canChangeSeat()}
+          >
+            <Settings className="mr-2 h-4 w-4" />
+            Change Seat
+          </Button>
+
+          {/* Manage Booking Button */}
+          <Button 
+            variant="outline"
+            className="flex items-center justify-center"
+            onClick={() => onManageBooking?.(ticket.id)}
+            disabled={ticket.status === 'cancelled'}
+          >
+            <CreditCard className="mr-2 h-4 w-4" />
+            Manage Booking
+          </Button>
+
+          {/* View Details Button */}
+          <Button 
+            variant="outline"
+            className="flex items-center justify-center"
+            onClick={() => onViewDetails?.(ticket.id)}
+          >
+            <Eye className="mr-2 h-4 w-4" />
+            View Details
+          </Button>
+        </div>
+
+        {/* Secondary Actions */}
+        <div className="flex justify-between items-center mt-4 pt-4 border-t">
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            onClick={() => onDownload(ticket.id)}
+            className="text-primary hover:text-primary/80"
+          >
+            <Download className="mr-2 h-4 w-4" />
+            Download Ticket
+          </Button>
+          
+          {ticket.status !== 'cancelled' && ticket.status !== 'completed' && (
             <Button 
-              variant="outline" 
+              variant="ghost" 
               size="sm" 
-              onClick={() => {
-                const ticketData = {
-                  ticketNumber: ticket.ticketNumber,
-                  passengerName: `${ticket.passenger.firstName} ${ticket.passenger.lastName}`,
-                  flightNumber: ticket.flight.flightNumber,
-                  airline: ticket.flight.airline,
-                  origin: ticket.flight.origin,
-                  destination: ticket.flight.destination,
-                  departureTime: new Date(ticket.flight.departureTime).toLocaleString('en-IN'),
-                  arrivalTime: new Date(ticket.flight.arrivalTime).toLocaleString('en-IN'),
-                  seatNumber: ticket.seatNumber,
-                  seatClass: ticket.seatClass,
-                  amount: `₹${new Intl.NumberFormat('en-IN').format(parseFloat(ticket.price))}`,
-                  status: ticket.status,
-                  bookingReference: ticket.bookingReference
-                };
-                
-                const content = `
-MacAirlines - Electronic Ticket
-
-Ticket Number: ${ticketData.ticketNumber}
-Booking Reference: ${ticketData.bookingReference}
-
-Passenger: ${ticketData.passengerName}
-Flight: ${ticketData.flightNumber} (${ticketData.airline})
-
-Route: ${ticketData.origin} → ${ticketData.destination}
-Departure: ${ticketData.departureTime}
-Arrival: ${ticketData.arrivalTime}
-
-Seat: ${ticketData.seatNumber} (${ticketData.seatClass})
-Amount Paid: ${ticketData.amount}
-Status: ${ticketData.status.toUpperCase()}
-
-Thank you for choosing MacAirlines!
-                `;
-                
-                const blob = new Blob([content], { type: 'text/plain' });
-                const url = URL.createObjectURL(blob);
-                const link = document.createElement('a');
-                link.href = url;
-                link.download = `MacAirlines_Ticket_${ticket.ticketNumber}.txt`;
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-                URL.revokeObjectURL(url);
-              }}
-              className="flex items-center"
-              data-testid={`download-ticket-${ticket.ticketNumber}`}
+              onClick={() => onCancel(ticket.id)}
+              className="text-red-600 hover:text-red-700"
             >
-              <Download className="mr-2 h-4 w-4" />
-              Download
+              <AlertCircle className="mr-2 h-4 w-4" />
+              Cancel Ticket
             </Button>
-            
-            {isActiveTicket && onCancel && (
-              <Button 
-                variant="destructive" 
-                size="sm" 
-                onClick={() => onCancel(ticket.id)}
-                className="flex items-center"
-                data-testid={`cancel-ticket-${ticket.ticketNumber}`}
-              >
-                <AlertCircle className="mr-2 h-4 w-4" />
-                Cancel
-              </Button>
-            )}
-
-            <Button 
-              size="sm"
-              className="flex items-center"
-              data-testid={`view-details-${ticket.ticketNumber}`}
-            >
-              View Details
-            </Button>
-          </div>
+          )}
         </div>
+
+        {/* Status Messages */}
+        {ticket.status === 'cancelled' && (
+          <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+            <div className="flex items-center text-red-800">
+              <AlertCircle className="mr-2 h-4 w-4" />
+              <span className="text-sm font-medium">This ticket has been cancelled</span>
+            </div>
+          </div>
+        )}
+
+        {canCheckIn() && !ticket.checkedIn && (
+          <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+            <div className="flex items-center text-blue-800">
+              <Clock className="mr-2 h-4 w-4" />
+              <span className="text-sm font-medium">Online check-in is now available!</span>
+            </div>
+          </div>
+        )}
       </CardContent>
     </Card>
   );

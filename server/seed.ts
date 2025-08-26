@@ -253,9 +253,28 @@ export async function seedDatabase() {
 🎫 Tickets: ${createdTickets.length}
 💳 Transactions: ${sampleTransactions.length}
 
-🔐 Test Credentials:
-Customer: priya.krishnan@gmail.com / password123
-Employee: lakshmi.employee@airways.com / admin123
+🔐 Test Login Credentials:
+
+📱 CUSTOMER ACCOUNTS:
+Email: priya.krishnan@gmail.com
+Password: password123
+Role: customer
+
+Email: raja.murugan@gmail.com  
+Password: password123
+Role: customer
+
+👨‍💼 EMPLOYEE ACCOUNTS:
+Email: lakshmi.operations@macairlines.com
+Password: password123
+Role: employee
+
+Email: karthik.manager@macairlines.com
+Password: password123
+Role: employee
+
+💡 Use these credentials to test both customer and employee functionalities!
+    `);akshmi.employee@airways.com / admin123
     `);
 
   } catch (error) {

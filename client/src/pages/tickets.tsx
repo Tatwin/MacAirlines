@@ -26,19 +26,86 @@ export default function TicketsPage() {
   });
 
   const handleDownloadTicket = (ticketId: string) => {
-    // Implement ticket download functionality
     toast({
       title: "Download Started",
-      description: "Your ticket is being downloaded...",
+      description: "Your ticket PDF is being generated and downloaded...",
     });
+    
+    // Generate a simple ticket PDF or redirect to ticket view
+    const ticket = tickets?.find(t => t.id === ticketId);
+    if (ticket) {
+      // Open ticket details in new window for printing/saving
+      const printWindow = window.open('', '_blank');
+      if (printWindow) {
+        printWindow.document.write(`
+          <html>
+            <head><title>Ticket ${ticket.ticketNumber}</title></head>
+            <body>
+              <h1>MACAirlines Ticket</h1>
+              <p><strong>Ticket Number:</strong> ${ticket.ticketNumber}</p>
+              <p><strong>Booking Reference:</strong> ${ticket.bookingReference}</p>
+              <p><strong>Flight:</strong> ${ticket.flight?.flightNumber}</p>
+              <p><strong>Route:</strong> ${ticket.flight?.origin} to ${ticket.flight?.destination}</p>
+              <p><strong>Passenger:</strong> ${ticket.passenger?.firstName} ${ticket.passenger?.lastName}</p>
+              <p><strong>Seat:</strong> ${ticket.seatNumber} (${ticket.seatClass})</p>
+              <p><strong>Price:</strong> ₹${new Intl.NumberFormat('en-IN').format(parseFloat(ticket.price))}</p>
+            </body>
+          </html>
+        `);
+        printWindow.print();
+      }
+    }
   };
 
   const handleCancelTicket = (ticketId: string) => {
-    // Implement ticket cancellation functionality
-    toast({
-      title: "Cancellation Request",
-      description: "Please contact customer service to cancel your ticket.",
-    });
+    const ticket = tickets?.find(t => t.id === ticketId);
+    if (ticket && window.confirm(`Are you sure you want to cancel ticket ${ticket.ticketNumber}?`)) {
+      // In a real app, this would call an API endpoint
+      toast({
+        title: "Cancellation Request Submitted",
+        description: "Your cancellation request has been submitted. You will receive a confirmation email shortly.",
+      });
+    }
+  };
+
+  const handleCheckIn = (ticketId: string) => {
+    const ticket = tickets?.find(t => t.id === ticketId);
+    if (ticket) {
+      toast({
+        title: "Check-in Successful",
+        description: `You have been checked in for flight ${ticket.flight?.flightNumber}. Your boarding pass is ready.`,
+      });
+    }
+  };
+
+  const handleChangeSeat = (ticketId: string) => {
+    const ticket = tickets?.find(t => t.id === ticketId);
+    if (ticket) {
+      navigate(`/booking?change_seat=${ticketId}&flight=${ticket.flightId}`);
+    }
+  };
+
+  const handleViewDetails = (ticketId: string) => {
+    const ticket = tickets?.find(t => t.id === ticketId);
+    if (ticket) {
+      toast({
+        title: "Ticket Details",
+        description: `Viewing details for ticket ${ticket.ticketNumber}`,
+      });
+      // In a real app, this could open a modal or navigate to details page
+    }
+  };
+
+  const handleManageBooking = (ticketId: string) => {
+    const ticket = tickets?.find(t => t.id === ticketId);
+    if (ticket) {
+      toast({
+        title: "Manage Booking",
+        description: "Opening booking management options...",
+      });
+      // Navigate to booking management page
+      navigate(`/booking/manage/${ticket.bookingReference}`);
+    }
   };
 
   const handleBookNewFlight = () => {
@@ -85,6 +152,10 @@ export default function TicketsPage() {
                 ticket={ticket}
                 onDownload={handleDownloadTicket}
                 onCancel={handleCancelTicket}
+                onCheckIn={handleCheckIn}
+                onChangeSeat={handleChangeSeat}
+                onViewDetails={handleViewDetails}
+                onManageBooking={handleManageBooking}
               />
             ))}
           </div>

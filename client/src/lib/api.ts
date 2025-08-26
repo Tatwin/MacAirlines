@@ -23,6 +23,16 @@ export class ApiClient {
     localStorage.removeItem('token');
   }
 
+  private getHeaders(): Record<string, string> {
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+    };
+    if (this.token) {
+      headers['Authorization'] = `Bearer ${this.token}`;
+    }
+    return headers;
+  }
+
   private async request(method: string, url: string, data?: any) {
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
@@ -72,7 +82,7 @@ export class ApiClient {
     if (params.departureDate) {
       searchParams.set('departureDate', params.departureDate);
     }
-    
+
     return this.request('GET', `/api/flights/search?${searchParams.toString()}`);
   }
 
@@ -113,42 +123,124 @@ export class ApiClient {
     return this.request('GET', `/api/employee/passengers${searchParams}`);
   }
 
-  async createPassenger(data: InsertPassenger): Promise<Passenger> {
-    return this.request('POST', '/api/employee/passengers', data);
+  async createPassenger(data: any) {
+    const response = await fetch('/api/employee/passengers', {
+      method: 'POST',
+      headers: this.getHeaders(),
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Failed to create passenger');
+    }
+
+    return response.json();
   }
 
-  async updatePassenger(id: string, data: Partial<InsertPassenger>): Promise<Passenger> {
-    return this.request('PUT', `/api/employee/passengers/${id}`, data);
+  async updatePassenger(id: string, data: any) {
+    const response = await fetch(`/api/employee/passengers/${id}`, {
+      method: 'PUT',
+      headers: this.getHeaders(),
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Failed to update passenger');
+    }
+
+    return response.json();
   }
 
-  async deletePassenger(id: string): Promise<{ message: string }> {
-    return this.request('DELETE', `/api/employee/passengers/${id}`);
+  async deletePassenger(id: string) {
+    const response = await fetch(`/api/employee/passengers/${id}`, {
+      method: 'DELETE',
+      headers: this.getHeaders(),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Failed to delete passenger');
+    }
+
+    return response.json();
   }
 
   // Employee methods - Tickets
   async getAllTickets() {
-    return this.request('GET', '/api/employee/tickets');
+    const response = await fetch('/api/employee/tickets', {
+      headers: this.getHeaders(),
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch tickets');
+    }
+
+    return response.json();
   }
 
   async updateTicket(id: string, data: any) {
     return this.request('PUT', `/api/employee/tickets/${id}`, data);
   }
 
-  async deleteTicket(id: string): Promise<{ message: string }> {
-    return this.request('DELETE', `/api/employee/tickets/${id}`);
+  async deleteTicket(id: string) {
+    const response = await fetch(`/api/employee/tickets/${id}`, {
+      method: 'DELETE',
+      headers: this.getHeaders(),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Failed to cancel ticket');
+    }
+
+    return response.json();
   }
 
   // Employee methods - Flights
   async createFlight(data: any) {
-    return this.request('POST', '/api/employee/flights', data);
+    const response = await fetch('/api/employee/flights', {
+      method: 'POST',
+      headers: this.getHeaders(),
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Failed to create flight');
+    }
+
+    return response.json();
   }
 
   async updateFlight(id: string, data: any) {
-    return this.request('PUT', `/api/employee/flights/${id}`, data);
+    const response = await fetch(`/api/employee/flights/${id}`, {
+      method: 'PUT',
+      headers: this.getHeaders(),
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Failed to update flight');
+    }
+
+    return response.json();
   }
 
-  async deleteFlight(id: string): Promise<{ message: string }> {
-    return this.request('DELETE', `/api/employee/flights/${id}`);
+  async deleteFlight(id: string) {
+    const response = await fetch(`/api/employee/flights/${id}`, {
+      method: 'DELETE',
+      headers: this.getHeaders(),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Failed to delete flight');
+    }
+
+    return response.json();
   }
 }
 
