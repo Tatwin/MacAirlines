@@ -260,21 +260,20 @@ Email: priya.krishnan@gmail.com
 Password: password123
 Role: customer
 
-Email: raja.murugan@gmail.com  
+Email: arjun.raman@yahoo.com  
 Password: password123
 Role: customer
 
 👨‍💼 EMPLOYEE ACCOUNTS:
-Email: lakshmi.operations@macairlines.com
-Password: password123
+Email: lakshmi.employee@airways.com
+Password: admin123
 Role: employee
 
-Email: karthik.manager@macairlines.com
-Password: password123
+Email: vijay.employee@airways.com
+Password: admin123
 Role: employee
 
 💡 Use these credentials to test both customer and employee functionalities!
-    `);akshmi.employee@airways.com / admin123
     `);
 
   } catch (error) {
