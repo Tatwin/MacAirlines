@@ -65,9 +65,9 @@ export default function HomePage() {
         >
           <div className="absolute inset-0 flex items-center justify-center">
             <div className="text-center text-white max-w-4xl mx-auto px-4">
-              <h1 className="text-4xl md:text-6xl font-bold mb-4">TamilSky Airways - Connecting Tamil Nadu</h1>
+              <h1 className="text-4xl md:text-6xl font-bold mb-4">MacAirlines- Connecting India</h1>
               <p className="text-xl md:text-2xl mb-8 text-blue-100">
-                Your trusted partner for domestic flights across Tamil Nadu and India
+                Your trusted partner for domestic flights across India
               </p>
             </div>
           </div>
@@ -123,6 +123,9 @@ export default function HomePage() {
                     <SelectItem value="Ahmedabad (AMD)">Ahmedabad (AMD)</SelectItem>
                     <SelectItem value="Kolkata (CCU)">Kolkata (CCU)</SelectItem>
                     <SelectItem value="Goa (GOI)">Goa (GOI)</SelectItem>
+                    <SelectItem value="Coimbatore (CJB)">Coimbatore (CJB)</SelectItem>
+
+                    
                   </SelectContent>
                 </Select>
               </div>
@@ -148,6 +151,7 @@ export default function HomePage() {
                     <SelectItem value="Ahmedabad (AMD)">Ahmedabad (AMD)</SelectItem>
                     <SelectItem value="Kolkata (CCU)">Kolkata (CCU)</SelectItem>
                     <SelectItem value="Goa (GOI)">Goa (GOI)</SelectItem>
+                    <SelectItem value="Coimbatore (CJB)">Coimbatore (CJB)</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -223,24 +227,34 @@ export default function HomePage() {
 
         <div className="grid md:grid-cols-3 gap-8">
           <div className="text-center">
-            <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center mx-auto mb-4">
-              <Shield className="text-white text-2xl h-8 w-8" />
-            </div>
-            <h3 className="text-xl font-semibold mb-2">Secure Booking</h3>
+            {/* Secure Booking Image */}
+            <img 
+              src="https://cdn-icons-png.flaticon.com/512/3064/3064197.png" 
+              alt="Secure Booking" 
+              className="w-16 h-16 mx-auto"
+            />
+
+            <h3 className="text-xl font-semibold mt-2 mb-2">Secure Booking</h3>
             <p className="text-gray-600">Your transactions are protected with enterprise-grade security</p>
           </div>
           <div className="text-center">
-            <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center mx-auto mb-4">
-              <Clock className="text-white text-2xl h-8 w-8" />
-            </div>
-            <h3 className="text-xl font-semibold mb-2">24/7 Support</h3>
+            {/* 24/7 Support Image */}
+            <img 
+              src="https://cdn-icons-png.flaticon.com/512/5973/5973800.png" 
+              alt="24/7 Support" 
+              className="w-16 h-16 mx-auto"
+            />
+            <h3 className="text-xl font-semibold mt-2 mb-2">24/7 Support</h3>
             <p className="text-gray-600">Round-the-clock customer service for all your travel needs</p>
           </div>
           <div className="text-center">
-            <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center mx-auto mb-4">
-              <IndianRupee className="text-white text-2xl h-8 w-8" />
-            </div>
-            <h3 className="text-xl font-semibold mb-2">Best Prices</h3>
+            {/* Best Prices Image */}
+            <img 
+              src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" 
+              alt="Best Prices" 
+              className="w-16 h-16 mx-auto"
+            />
+            <h3 className="text-xl font-semibold mt-2 mb-2">Best Prices</h3>
             <p className="text-gray-600">Competitive rates in Indian Rupees with exclusive deals</p>
           </div>
         </div>

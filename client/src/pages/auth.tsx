@@ -94,10 +94,10 @@ export default function AuthPage() {
         <CardHeader className="text-center">
           <div className="flex items-center justify-center mb-4">
             <Plane className="h-8 w-8 text-primary mr-2" />
-            <span className="text-2xl font-bold text-primary">TamilSky Airways</span>
+            <span className="text-2xl font-bold text-primary">MacAirlines</span>
           </div>
           <CardTitle className="text-2xl">வணக்கம் - Welcome</CardTitle>
-          <p className="text-sm text-muted-foreground">Your gateway to Tamil Nadu skies</p>
+          <p className="text-sm text-muted-foreground">Your gateway to Indian skies</p>
         </CardHeader>
         
         <CardContent>
@@ -306,7 +306,7 @@ export default function AuthPage() {
 
                   <Button 
                     type="submit" 
-                    className="w-full" 
+                    className="w-full flex items-center justify-center" 
                     disabled={isLoading}
                     data-testid="signup-submit-button"
                   >

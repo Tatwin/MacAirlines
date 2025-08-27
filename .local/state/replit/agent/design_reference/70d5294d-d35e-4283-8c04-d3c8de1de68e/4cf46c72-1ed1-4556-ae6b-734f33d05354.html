@@ -1,0 +1,2607 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SkyReserve - Airline Reservation System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#1E40AF',
+                        'primary-light': '#3B82F6',
+                        accent: '#F59E0B',
+                        success: '#10B981',
+                        error: '#EF4444'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif']
+                    }
+                }
+            }
+        };
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-50 font-sans">
+    <!-- @COMPONENT: NavigationBar [role-based navigation] -->
+    <nav class="bg-white shadow-lg sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center space-x-8">
+                    <div class="flex-shrink-0">
+                        <h1 class="text-2xl font-bold text-primary">
+                            <i class="fas fa-plane mr-2"></i>SkyReserve
+                        </h1>
+                    </div>
+                    <div class="hidden md:block">
+                        <div class="ml-10 flex items-baseline space-x-4">
+                            <a href="#" class="text-primary hover:bg-blue-50 px-3 py-2 rounded-md text-sm font-medium transition-colors">Home</a>
+                            <a href="#" class="text-gray-700 hover:bg-gray-50 px-3 py-2 rounded-md text-sm font-medium transition-colors" data-customer-only="true">Book Flight</a>
+                            <a href="#" class="text-gray-700 hover:bg-gray-50 px-3 py-2 rounded-md text-sm font-medium transition-colors" data-customer-only="true">My Tickets</a>
+                            <a href="#" class="text-gray-700 hover:bg-gray-50 px-3 py-2 rounded-md text-sm font-medium transition-colors" data-customer-only="true">Transactions</a>
+                            <a href="#" class="text-gray-700 hover:bg-gray-50 px-3 py-2 rounded-md text-sm font-medium transition-colors" data-employee-only="true">Dashboard</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div class="hidden md:flex items-center space-x-2" data-authenticated="false">
+                        <button class="text-gray-700 hover:bg-gray-50 px-3 py-2 rounded-md text-sm font-medium transition-colors">Sign In</button>
+                        <button class="bg-primary hover:bg-blue-800 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors">Sign Up</button>
+                    </div>
+                    <div class="hidden md:flex items-center space-x-2" data-authenticated="true" style="display: none;">
+                        <div class="flex items-center space-x-2">
+                            <div class="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
+                                <span class="text-white text-sm font-medium" data-bind="user.initials">JD</span>
+                            </div>
+                            <span class="text-gray-700 text-sm font-medium" data-bind="user.name">John Doe</span>
+                        </div>
+                        <button class="text-gray-500 hover:text-gray-700 transition-colors" data-event="click:handleLogout">
+                            <i class="fas fa-sign-out-alt"></i>
+                        </button>
+                    </div>
+                    <!-- Mobile menu button -->
+                    <button class="md:hidden p-2" data-event="click:toggleMobileMenu">
+                        <i class="fas fa-bars text-gray-700"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <!-- Mobile Navigation -->
+        <div class="md:hidden bg-white border-t" data-mobile-menu="true" style="display: none;">
+            <div class="px-2 pt-2 pb-3 space-y-1">
+                <a href="#" class="block text-primary hover:bg-blue-50 px-3 py-2 rounded-md text-base font-medium">Home</a>
+                <a href="#" class="block text-gray-700 hover:bg-gray-50 px-3 py-2 rounded-md text-base font-medium" data-customer-only="true">Book Flight</a>
+                <a href="#" class="block text-gray-700 hover:bg-gray-50 px-3 py-2 rounded-md text-base font-medium" data-customer-only="true">My Tickets</a>
+                <a href="#" class="block text-gray-700 hover:bg-gray-50 px-3 py-2 rounded-md text-base font-medium" data-customer-only="true">Transactions</a>
+                <a href="#" class="block text-gray-700 hover:bg-gray-50 px-3 py-2 rounded-md text-base font-medium" data-employee-only="true">Dashboard</a>
+            </div>
+        </div>
+    </nav>
+    <!-- @END_COMPONENT: NavigationBar -->
+
+    <!-- Main Content Container -->
+    <div class="min-h-screen">
+        
+        <!-- @COMPONENT: HomePage [hero section with flight search] -->
+        <section class="homepage-section">
+            <!-- Hero Section -->
+            <!-- A modern airport terminal with large windows and sleek architecture -->
+            <div class="relative bg-cover bg-center bg-no-repeat h-96 flex items-center justify-center" style="background-image: linear-gradient(rgba(30, 64, 175, 0.7), rgba(30, 64, 175, 0.7)), url('https://images.unsplash.com/photo-1436491865332-7a61a109cc05?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&h=800');">
+                <div class="text-center text-white max-w-4xl mx-auto px-4">
+                    <h1 class="text-4xl md:text-6xl font-bold mb-4">Book Your Perfect Flight</h1>
+                    <p class="text-xl md:text-2xl mb-8 text-blue-100">Discover amazing destinations and book with confidence</p>
+                </div>
+            </div>
+
+            <!-- Flight Search Form -->
+            <div class="max-w-6xl mx-auto px-4 -mt-24 relative z-10">
+                <div class="bg-white rounded-xl shadow-2xl p-6 md:p-8">
+                    <div class="flex flex-col md:flex-row mb-6">
+                        <button class="flex items-center space-x-2 px-4 py-2 bg-primary text-white rounded-md mr-4 mb-2 md:mb-0" data-trip-type="round-trip">
+                            <i class="fas fa-exchange-alt"></i>
+                            <span>Round Trip</span>
+                        </button>
+                        <button class="flex items-center space-x-2 px-4 py-2 text-primary border border-primary rounded-md hover:bg-blue-50 transition-colors" data-trip-type="one-way">
+                            <i class="fas fa-arrow-right"></i>
+                            <span>One Way</span>
+                        </button>
+                    </div>
+
+                    <form class="space-y-4 md:space-y-0 md:grid md:grid-cols-2 lg:grid-cols-4 md:gap-4" data-form="flight-search">
+                        <!-- From Location -->
+                        <div class="space-y-2">
+                            <label class="block text-sm font-medium text-gray-700">From</label>
+                            <div class="relative">
+                                <i class="fas fa-plane-departure absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                                <input type="text" placeholder="Departure city" class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent" data-bind="search.from">
+                            </div>
+                        </div>
+
+                        <!-- To Location -->
+                        <div class="space-y-2">
+                            <label class="block text-sm font-medium text-gray-700">To</label>
+                            <div class="relative">
+                                <i class="fas fa-plane-arrival absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                                <input type="text" placeholder="Destination city" class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent" data-bind="search.to">
+                            </div>
+                        </div>
+
+                        <!-- Departure Date -->
+                        <div class="space-y-2">
+                            <label class="block text-sm font-medium text-gray-700">Departure</label>
+                            <div class="relative">
+                                <i class="fas fa-calendar absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                                <input type="date" class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent" data-bind="search.departureDate">
+                            </div>
+                        </div>
+
+                        <!-- Return Date -->
+                        <div class="space-y-2" data-return-date="true">
+                            <label class="block text-sm font-medium text-gray-700">Return</label>
+                            <div class="relative">
+                                <i class="fas fa-calendar absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                                <input type="date" class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent" data-bind="search.returnDate">
+                            </div>
+                        </div>
+
+                        <!-- Passengers -->
+                        <div class="space-y-2">
+                            <label class="block text-sm font-medium text-gray-700">Passengers</label>
+                            <div class="relative">
+                                <i class="fas fa-user absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                                <select class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent appearance-none" data-bind="search.passengers">
+                                    <option value="1">1 Passenger</option>
+                                    <option value="2">2 Passengers</option>
+                                    <option value="3">3 Passengers</option>
+                                    <option value="4">4+ Passengers</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Class -->
+                        <div class="space-y-2">
+                            <label class="block text-sm font-medium text-gray-700">Class</label>
+                            <select class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent" data-bind="search.class">
+                                <option value="economy">Economy</option>
+                                <option value="premium">Premium Economy</option>
+                                <option value="business">Business</option>
+                                <option value="first">First Class</option>
+                            </select>
+                        </div>
+
+                        <!-- Search Button -->
+                        <div class="md:col-span-2 lg:col-span-4 pt-4">
+                            <button type="submit" class="w-full bg-accent hover:bg-yellow-600 text-white font-semibold py-3 px-6 rounded-lg transition-colors flex items-center justify-center space-x-2" data-event="click:handleFlightSearch">
+                                <i class="fas fa-search"></i>
+                                <span>Search Flights</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Features Section -->
+            <div class="max-w-7xl mx-auto px-4 py-16">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Why Choose SkyReserve?</h2>
+                    <p class="text-lg text-gray-600 max-w-2xl mx-auto">Experience seamless booking with our advanced reservation system</p>
+                </div>
+
+                <div class="grid md:grid-cols-3 gap-8">
+                    <div class="text-center">
+                        <div class="w-16 h-16 bg-primary rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-shield-alt text-white text-2xl"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold mb-2">Secure Booking</h3>
+                        <p class="text-gray-600">Your transactions are protected with enterprise-grade security</p>
+                    </div>
+                    <div class="text-center">
+                        <div class="w-16 h-16 bg-primary rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-clock text-white text-2xl"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold mb-2">24/7 Support</h3>
+                        <p class="text-gray-600">Round-the-clock customer service for all your travel needs</p>
+                    </div>
+                    <div class="text-center">
+                        <div class="w-16 h-16 bg-primary rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-mobile-alt text-white text-2xl"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold mb-2">Mobile Ready</h3>
+                        <p class="text-gray-600">Book and manage your flights on any device, anywhere</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- @END_COMPONENT: HomePage -->
+
+        <!-- @COMPONENT: AuthModal [login and signup forms] -->
+        <div class="auth-modal-overlay fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden" data-modal="auth">
+            <div class="bg-white rounded-xl max-w-md w-full mx-4 overflow-hidden">
+                <!-- Modal Header -->
+                <div class="flex items-center justify-between p-6 border-b">
+                    <h2 class="text-2xl font-bold text-gray-900" data-modal-title="Sign In">Sign In</h2>
+                    <button class="text-gray-400 hover:text-gray-600" data-event="click:closeModal">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+
+                <!-- Sign In Form -->
+                <div class="signin-form p-6" data-form="signin">
+                    <form class="space-y-4" data-event="submit:handleSignIn">
+                        <!-- Role Selection -->
+                        <div class="flex space-x-2 mb-6">
+                            <button type="button" class="flex-1 py-2 px-4 border border-primary text-primary rounded-md hover:bg-blue-50 transition-colors" data-role="customer" data-active="true">
+                                Customer
+                            </button>
+                            <button type="button" class="flex-1 py-2 px-4 border border-gray-300 text-gray-600 rounded-md hover:bg-gray-50 transition-colors" data-role="employee">
+                                Employee
+                            </button>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                            <input type="email" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent" data-bind="signin.email" placeholder="Enter your email">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Password</label>
+                            <div class="relative">
+                                <input type="password" required class="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent" data-bind="signin.password" placeholder="Enter your password">
+                                <button type="button" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600" data-event="click:togglePassword">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="w-full bg-primary hover:bg-blue-800 text-white font-semibold py-3 px-4 rounded-lg transition-colors">
+                            Sign In
+                        </button>
+
+                        <p class="text-center text-sm text-gray-600">
+                            Don't have an account? 
+                            <button type="button" class="text-primary hover:underline" data-event="click:showSignup">Sign up</button>
+                        </p>
+                    </form>
+                </div>
+
+                <!-- Sign Up Form -->
+                <div class="signup-form p-6 hidden" data-form="signup">
+                    <form class="space-y-4" data-event="submit:handleSignUp">
+                        <!-- Role Selection -->
+                        <div class="flex space-x-2 mb-6">
+                            <button type="button" class="flex-1 py-2 px-4 border border-primary text-primary rounded-md hover:bg-blue-50 transition-colors" data-role="customer" data-active="true">
+                                Customer
+                            </button>
+                            <button type="button" class="flex-1 py-2 px-4 border border-gray-300 text-gray-600 rounded-md hover:bg-gray-50 transition-colors" data-role="employee">
+                                Employee
+                            </button>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">First Name</label>
+                                <input type="text" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent" data-bind="signup.firstName" placeholder="First name">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Last Name</label>
+                                <input type="text" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent" data-bind="signup.lastName" placeholder="Last name">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                            <input type="email" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent" data-bind="signup.email" placeholder="Enter your email">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Phone</label>
+                            <input type="tel" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent" data-bind="signup.phone" placeholder="Phone number">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Password</label>
+                            <input type="password" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent" data-bind="signup.password" placeholder="Create a password">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Confirm Password</label>
+                            <input type="password" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent" data-bind="signup.confirmPassword" placeholder="Confirm your password">
+                        </div>
+
+                        <button type="submit" class="w-full bg-primary hover:bg-blue-800 text-white font-semibold py-3 px-4 rounded-lg transition-colors">
+                            Create Account
+                        </button>
+
+                        <p class="text-center text-sm text-gray-600">
+                            Already have an account? 
+                            <button type="button" class="text-primary hover:underline" data-event="click:showSignin">Sign in</button>
+                        </p>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <!-- @END_COMPONENT: AuthModal -->
+
+        <!-- @COMPONENT: FlightResults [search results display] -->
+        <section class="flight-results-section hidden" data-section="flight-results">
+            <div class="max-w-7xl mx-auto px-4 py-8">
+                <!-- Search Summary -->
+                <div class="bg-white rounded-lg shadow p-6 mb-6">
+                    <div class="flex flex-col md:flex-row md:items-center md:justify-between">
+                        <div class="flex items-center space-x-4 mb-4 md:mb-0">
+                            <h2 class="text-2xl font-bold text-gray-900">Flight Results</h2>
+                            <span class="bg-gray-100 text-gray-600 px-3 py-1 rounded-full text-sm" data-bind="results.count">24 flights found</span>
+                        </div>
+                        <div class="flex items-center space-x-4 text-sm text-gray-600">
+                            <span data-bind="search.route">NYC → LAX</span>
+                            <span data-bind="search.date">Dec 15, 2024</span>
+                            <span data-bind="search.passengers">2 passengers</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Filters -->
+                <div class="grid lg:grid-cols-4 gap-6">
+                    <div class="lg:col-span-1">
+                        <div class="bg-white rounded-lg shadow p-6 sticky top-24">
+                            <h3 class="text-lg font-semibold mb-4">Filter Flights</h3>
+                            
+                            <!-- Price Range -->
+                            <div class="mb-6">
+                                <h4 class="font-medium mb-2">Price Range</h4>
+                                <div class="space-y-2">
+                                    <input type="range" min="100" max="2000" class="w-full" data-bind="filters.priceRange">
+                                    <div class="flex justify-between text-sm text-gray-600">
+                                        <span>$100</span>
+                                        <span>$2000+</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Departure Time -->
+                            <div class="mb-6">
+                                <h4 class="font-medium mb-2">Departure Time</h4>
+                                <div class="space-y-2">
+                                    <label class="flex items-center">
+                                        <input type="checkbox" class="mr-2" data-bind="filters.morning">
+                                        <span class="text-sm">Morning (6AM - 12PM)</span>
+                                    </label>
+                                    <label class="flex items-center">
+                                        <input type="checkbox" class="mr-2" data-bind="filters.afternoon">
+                                        <span class="text-sm">Afternoon (12PM - 6PM)</span>
+                                    </label>
+                                    <label class="flex items-center">
+                                        <input type="checkbox" class="mr-2" data-bind="filters.evening">
+                                        <span class="text-sm">Evening (6PM - 12AM)</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- Airlines -->
+                            <div class="mb-6">
+                                <h4 class="font-medium mb-2">Airlines</h4>
+                                <div class="space-y-2">
+                                    <!-- @MAP: airlines.map(airline => ( -->
+                                    <label class="flex items-center" data-mock="true">
+                                        <input type="checkbox" class="mr-2">
+                                        <span class="text-sm">SkyLine Airways</span>
+                                    </label>
+                                    <label class="flex items-center" data-mock="true">
+                                        <input type="checkbox" class="mr-2">
+                                        <span class="text-sm">Global Wings</span>
+                                    </label>
+                                    <label class="flex items-center" data-mock="true">
+                                        <input type="checkbox" class="mr-2">
+                                        <span class="text-sm">Horizon Express</span>
+                                    </label>
+                                    <!-- @END_MAP )) -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Flight Cards -->
+                    <div class="lg:col-span-3">
+                        <div class="space-y-4">
+                            <!-- @MAP: flights.map(flight => ( -->
+                            <!-- Sample Flight Card -->
+                            <div class="bg-white rounded-lg shadow hover:shadow-md transition-shadow p-6" data-mock="true">
+                                <div class="flex flex-col md:flex-row md:items-center md:justify-between">
+                                    <div class="flex-1 grid grid-cols-1 md:grid-cols-3 gap-4 mb-4 md:mb-0">
+                                        <!-- Departure -->
+                                        <div class="text-center">
+                                            <div class="text-2xl font-bold text-gray-900" data-bind="flight.departureTime">08:30</div>
+                                            <div class="text-gray-600" data-bind="flight.departureCode">NYC</div>
+                                            <div class="text-sm text-gray-500" data-bind="flight.departureAirport">John F. Kennedy</div>
+                                        </div>
+
+                                        <!-- Flight Info -->
+                                        <div class="text-center">
+                                            <div class="flex items-center justify-center space-x-2 mb-1">
+                                                <i class="fas fa-plane text-primary"></i>
+                                                <div class="text-sm text-gray-600" data-bind="flight.duration">5h 20m</div>
+                                            </div>
+                                            <div class="text-sm text-gray-500" data-bind="flight.stops">Non-stop</div>
+                                            <div class="text-xs text-gray-400" data-bind="flight.airline">SkyLine Airways</div>
+                                        </div>
+
+                                        <!-- Arrival -->
+                                        <div class="text-center">
+                                            <div class="text-2xl font-bold text-gray-900" data-bind="flight.arrivalTime">11:50</div>
+                                            <div class="text-gray-600" data-bind="flight.arrivalCode">LAX</div>
+                                            <div class="text-sm text-gray-500" data-bind="flight.arrivalAirport">Los Angeles Intl</div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Price and Book -->
+                                    <div class="flex flex-col items-center md:items-end space-y-2">
+                                        <div class="text-2xl font-bold text-primary" data-bind="flight.price">$299</div>
+                                        <div class="text-sm text-gray-500">per person</div>
+                                        <button class="bg-primary hover:bg-blue-800 text-white px-6 py-2 rounded-lg transition-colors" data-event="click:selectFlight" data-flight-id="123">
+                                            Select Flight
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Additional flight cards would be mapped here -->
+                            <div class="bg-white rounded-lg shadow hover:shadow-md transition-shadow p-6" data-mock="true">
+                                <div class="flex flex-col md:flex-row md:items-center md:justify-between">
+                                    <div class="flex-1 grid grid-cols-1 md:grid-cols-3 gap-4 mb-4 md:mb-0">
+                                        <div class="text-center">
+                                            <div class="text-2xl font-bold text-gray-900">14:15</div>
+                                            <div class="text-gray-600">NYC</div>
+                                            <div class="text-sm text-gray-500">LaGuardia</div>
+                                        </div>
+                                        <div class="text-center">
+                                            <div class="flex items-center justify-center space-x-2 mb-1">
+                                                <i class="fas fa-plane text-primary"></i>
+                                                <div class="text-sm text-gray-600">6h 45m</div>
+                                            </div>
+                                            <div class="text-sm text-gray-500">1 stop</div>
+                                            <div class="text-xs text-gray-400">Global Wings</div>
+                                        </div>
+                                        <div class="text-center">
+                                            <div class="text-2xl font-bold text-gray-900">18:00</div>
+                                            <div class="text-gray-600">LAX</div>
+                                            <div class="text-sm text-gray-500">Los Angeles Intl</div>
+                                        </div>
+                                    </div>
+                                    <div class="flex flex-col items-center md:items-end space-y-2">
+                                        <div class="text-2xl font-bold text-primary">$249</div>
+                                        <div class="text-sm text-gray-500">per person</div>
+                                        <button class="bg-primary hover:bg-blue-800 text-white px-6 py-2 rounded-lg transition-colors" data-event="click:selectFlight" data-flight-id="124">
+                                            Select Flight
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- @END_MAP )) -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- @END_COMPONENT: FlightResults -->
+
+        <!-- @COMPONENT: BookingPage [seat selection and booking confirmation] -->
+        <section class="booking-section hidden" data-section="booking">
+            <div class="max-w-7xl mx-auto px-4 py-8">
+                <!-- Booking Header -->
+                <div class="bg-white rounded-lg shadow p-6 mb-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h2 class="text-2xl font-bold text-gray-900 mb-2">Complete Your Booking</h2>
+                            <div class="flex items-center space-x-4 text-sm text-gray-600">
+                                <span data-bind="selectedFlight.route">NYC → LAX</span>
+                                <span data-bind="selectedFlight.date">Dec 15, 2024</span>
+                                <span data-bind="selectedFlight.time">08:30 - 11:50</span>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-2xl font-bold text-primary" data-bind="booking.totalPrice">$598</div>
+                            <div class="text-sm text-gray-500">for 2 passengers</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid lg:grid-cols-3 gap-6">
+                    <!-- Seat Selection -->
+                    <div class="lg:col-span-2">
+                        <div class="bg-white rounded-lg shadow p-6 mb-6">
+                            <h3 class="text-lg font-semibold mb-4 flex items-center">
+                                <i class="fas fa-chair mr-2 text-primary"></i>
+                                Select Your Seats
+                            </h3>
+
+                            <!-- Seat Legend -->
+                            <div class="flex flex-wrap items-center space-x-6 mb-6 text-sm">
+                                <div class="flex items-center space-x-2">
+                                    <div class="w-4 h-4 bg-gray-300 rounded"></div>
+                                    <span>Available</span>
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <div class="w-4 h-4 bg-primary rounded"></div>
+                                    <span>Selected</span>
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <div class="w-4 h-4 bg-red-500 rounded"></div>
+                                    <span>Occupied</span>
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <div class="w-4 h-4 bg-accent rounded"></div>
+                                    <span>Premium (+$50)</span>
+                                </div>
+                            </div>
+
+                            <!-- Airplane Seat Map -->
+                            <div class="max-w-md mx-auto">
+                                <!-- Front of Plane -->
+                                <div class="text-center mb-4">
+                                    <div class="w-8 h-8 mx-auto bg-gray-200 rounded-t-full flex items-center justify-center">
+                                        <i class="fas fa-plane text-gray-600"></i>
+                                    </div>
+                                    <div class="text-xs text-gray-500 mt-1">Front</div>
+                                </div>
+
+                                <!-- First Class (Rows 1-3) -->
+                                <div class="mb-6">
+                                    <div class="text-center text-sm font-medium text-gray-700 mb-2">First Class</div>
+                                    <div class="space-y-2">
+                                        <!-- @FUNCTIONALITY: Generate seat rows dynamically based on aircraft configuration -->
+                                        <!-- Row 1 -->
+                                        <div class="flex justify-center items-center space-x-2">
+                                            <span class="text-xs text-gray-500 w-6">1</span>
+                                            <button class="w-8 h-8 bg-accent rounded text-xs font-medium hover:bg-yellow-600 transition-colors" data-seat="1A">A</button>
+                                            <button class="w-8 h-8 bg-gray-300 rounded text-xs font-medium hover:bg-gray-400 transition-colors" data-seat="1B">B</button>
+                                            <div class="w-4"></div>
+                                            <button class="w-8 h-8 bg-red-500 rounded text-xs font-medium text-white cursor-not-allowed" data-seat="1C" disabled>C</button>
+                                            <button class="w-8 h-8 bg-gray-300 rounded text-xs font-medium hover:bg-gray-400 transition-colors" data-seat="1D">D</button>
+                                        </div>
+                                        <!-- Additional first class rows would be generated here -->
+                                    </div>
+                                </div>
+
+                                <!-- Business Class (Rows 4-8) -->
+                                <div class="mb-6">
+                                    <div class="text-center text-sm font-medium text-gray-700 mb-2">Business Class</div>
+                                    <div class="space-y-2">
+                                        <!-- Row 4 -->
+                                        <div class="flex justify-center items-center space-x-2">
+                                            <span class="text-xs text-gray-500 w-6">4</span>
+                                            <button class="w-8 h-8 bg-gray-300 rounded text-xs font-medium hover:bg-gray-400 transition-colors" data-seat="4A">A</button>
+                                            <button class="w-8 h-8 bg-primary rounded text-xs font-medium text-white" data-seat="4B" data-selected="true">B</button>
+                                            <button class="w-8 h-8 bg-primary rounded text-xs font-medium text-white" data-seat="4C" data-selected="true">C</button>
+                                            <div class="w-4"></div>
+                                            <button class="w-8 h-8 bg-gray-300 rounded text-xs font-medium hover:bg-gray-400 transition-colors" data-seat="4D">D</button>
+                                            <button class="w-8 h-8 bg-gray-300 rounded text-xs font-medium hover:bg-gray-400 transition-colors" data-seat="4E">E</button>
+                                            <button class="w-8 h-8 bg-red-500 rounded text-xs font-medium text-white cursor-not-allowed" data-seat="4F" disabled>F</button>
+                                        </div>
+                                        <!-- Additional business class rows would be generated here -->
+                                    </div>
+                                </div>
+
+                                <!-- Economy Class (Rows 9+) -->
+                                <div class="mb-6">
+                                    <div class="text-center text-sm font-medium text-gray-700 mb-2">Economy Class</div>
+                                    <div class="space-y-1">
+                                        <!-- Multiple economy rows -->
+                                        <!-- @MAP: economyRows.map(row => ( -->
+                                        <div class="flex justify-center items-center space-x-1" data-mock="true">
+                                            <span class="text-xs text-gray-500 w-6">9</span>
+                                            <button class="w-6 h-6 bg-gray-300 rounded text-xs hover:bg-gray-400 transition-colors" data-seat="9A">A</button>
+                                            <button class="w-6 h-6 bg-gray-300 rounded text-xs hover:bg-gray-400 transition-colors" data-seat="9B">B</button>
+                                            <button class="w-6 h-6 bg-red-500 rounded text-xs text-white cursor-not-allowed" disabled>C</button>
+                                            <div class="w-2"></div>
+                                            <button class="w-6 h-6 bg-gray-300 rounded text-xs hover:bg-gray-400 transition-colors" data-seat="9D">D</button>
+                                            <button class="w-6 h-6 bg-gray-300 rounded text-xs hover:bg-gray-400 transition-colors" data-seat="9E">E</button>
+                                            <button class="w-6 h-6 bg-red-500 rounded text-xs text-white cursor-not-allowed" disabled>F</button>
+                                        </div>
+                                        <!-- @END_MAP )) -->
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Selected Seats Summary -->
+                            <div class="border-t pt-4">
+                                <h4 class="font-medium mb-2">Selected Seats:</h4>
+                                <div class="flex flex-wrap gap-2" data-selected-seats="true">
+                                    <span class="bg-primary text-white px-3 py-1 rounded-full text-sm" data-mock="true">4B - John Doe</span>
+                                    <span class="bg-primary text-white px-3 py-1 rounded-full text-sm" data-mock="true">4C - Jane Smith</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Passenger Information -->
+                        <div class="bg-white rounded-lg shadow p-6">
+                            <h3 class="text-lg font-semibold mb-4 flex items-center">
+                                <i class="fas fa-user mr-2 text-primary"></i>
+                                Passenger Information
+                            </h3>
+
+                            <!-- @MAP: passengers.map((passenger, index) => ( -->
+                            <div class="passenger-info space-y-4 mb-6" data-passenger-index="0" data-mock="true">
+                                <h4 class="font-medium text-gray-700">Passenger 1 (Adult)</h4>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">First Name</label>
+                                        <input type="text" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent" data-bind="passenger.0.firstName" placeholder="First name">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">Last Name</label>
+                                        <input type="text" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent" data-bind="passenger.0.lastName" placeholder="Last name">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">Date of Birth</label>
+                                        <input type="date" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent" data-bind="passenger.0.dateOfBirth">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">Gender</label>
+                                        <select class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent" data-bind="passenger.0.gender">
+                                            <option value="">Select gender</option>
+                                            <option value="male">Male</option>
+                                            <option value="female">Female</option>
+                                            <option value="other">Other</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">Passport/ID Number</label>
+                                        <input type="text" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent" data-bind="passenger.0.documentNumber" placeholder="Document number">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">Nationality</label>
+                                        <select class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent" data-bind="passenger.0.nationality">
+                                            <option value="">Select nationality</option>
+                                            <option value="US">United States</option>
+                                            <option value="UK">United Kingdom</option>
+                                            <option value="CA">Canada</option>
+                                            <!-- More options would be populated -->
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- @END_MAP )) -->
+                        </div>
+                    </div>
+
+                    <!-- Booking Summary -->
+                    <div class="lg:col-span-1">
+                        <div class="bg-white rounded-lg shadow p-6 sticky top-24">
+                            <h3 class="text-lg font-semibold mb-4">Booking Summary</h3>
+                            
+                            <!-- Flight Details -->
+                            <div class="space-y-4 mb-6">
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">Flight</span>
+                                    <span class="font-medium" data-bind="booking.flightNumber">SK 1234</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">Route</span>
+                                    <span class="font-medium" data-bind="booking.route">NYC → LAX</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">Date</span>
+                                    <span class="font-medium" data-bind="booking.date">Dec 15, 2024</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">Time</span>
+                                    <span class="font-medium" data-bind="booking.time">08:30 - 11:50</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">Passengers</span>
+                                    <span class="font-medium" data-bind="booking.passengerCount">2 Adults</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">Seats</span>
+                                    <span class="font-medium" data-bind="booking.seats">4B, 4C</span>
+                                </div>
+                            </div>
+
+                            <!-- Price Breakdown -->
+                            <div class="border-t pt-4 mb-6">
+                                <h4 class="font-medium mb-3">Price Breakdown</h4>
+                                <div class="space-y-2 text-sm">
+                                    <div class="flex justify-between">
+                                        <span>Base fare (2 × $299)</span>
+                                        <span data-bind="pricing.baseFare">$598</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span>Taxes & Fees</span>
+                                        <span data-bind="pricing.taxes">$84</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span>Seat Selection</span>
+                                        <span data-bind="pricing.seatFees">$0</span>
+                                    </div>
+                                    <div class="border-t pt-2 mt-2">
+                                        <div class="flex justify-between font-semibold">
+                                            <span>Total</span>
+                                            <span class="text-primary" data-bind="pricing.total">$682</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Payment Method -->
+                            <div class="mb-6">
+                                <h4 class="font-medium mb-3">Payment Method</h4>
+                                <div class="space-y-3">
+                                    <label class="flex items-center p-3 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50">
+                                        <input type="radio" name="payment" value="card" class="mr-3" checked data-bind="payment.method">
+                                        <i class="fas fa-credit-card mr-2 text-primary"></i>
+                                        <span>Credit/Debit Card</span>
+                                    </label>
+                                    <label class="flex items-center p-3 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50">
+                                        <input type="radio" name="payment" value="paypal" class="mr-3" data-bind="payment.method">
+                                        <i class="fab fa-paypal mr-2 text-blue-600"></i>
+                                        <span>PayPal</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- Card Details Form -->
+                            <div class="space-y-4 mb-6" data-payment-form="card">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Card Number</label>
+                                    <input type="text" placeholder="1234 5678 9012 3456" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent" data-bind="payment.cardNumber">
+                                </div>
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">Expiry</label>
+                                        <input type="text" placeholder="MM/YY" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent" data-bind="payment.expiry">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">CVV</label>
+                                        <input type="text" placeholder="123" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent" data-bind="payment.cvv">
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Cardholder Name</label>
+                                    <input type="text" placeholder="John Doe" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent" data-bind="payment.cardholderName">
+                                </div>
+                            </div>
+
+                            <!-- Confirm Booking Button -->
+                            <button class="w-full bg-success hover:bg-green-600 text-white font-semibold py-3 px-4 rounded-lg transition-colors flex items-center justify-center space-x-2" data-event="click:confirmBooking">
+                                <i class="fas fa-check"></i>
+                                <span>Confirm Booking</span>
+                            </button>
+
+                            <!-- Security Notice -->
+                            <div class="mt-4 p-3 bg-blue-50 rounded-lg">
+                                <div class="flex items-start space-x-2">
+                                    <i class="fas fa-shield-alt text-primary mt-1"></i>
+                                    <div class="text-sm text-primary">
+                                        <p class="font-medium">Secure Payment</p>
+                                        <p>Your payment information is encrypted and secure.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- @END_COMPONENT: BookingPage -->
+
+        <!-- @COMPONENT: TicketsPage [view booked tickets] -->
+        <section class="tickets-section hidden" data-section="tickets">
+            <div class="max-w-7xl mx-auto px-4 py-8">
+                <!-- Page Header -->
+                <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
+                    <div>
+                        <h2 class="text-3xl font-bold text-gray-900 mb-2">My Tickets</h2>
+                        <p class="text-gray-600">View and manage your flight bookings</p>
+                    </div>
+                    <button class="mt-4 md:mt-0 bg-primary hover:bg-blue-800 text-white px-4 py-2 rounded-lg transition-colors flex items-center space-x-2" data-event="click:bookNewFlight">
+                        <i class="fas fa-plus"></i>
+                        <span>Book New Flight</span>
+                    </button>
+                </div>
+
+                <!-- Ticket Cards -->
+                <div class="space-y-6">
+                    <!-- @MAP: userTickets.map(ticket => ( -->
+                    <!-- Active Ticket -->
+                    <div class="bg-white rounded-xl shadow-lg overflow-hidden" data-ticket-status="active" data-mock="true">
+                        <!-- Ticket Header -->
+                        <div class="bg-gradient-to-r from-primary to-primary-light p-6 text-white">
+                            <div class="flex flex-col md:flex-row md:items-center md:justify-between">
+                                <div>
+                                    <h3 class="text-xl font-bold mb-2" data-bind="ticket.flightNumber">Flight SK 1234</h3>
+                                    <div class="flex items-center space-x-4 text-blue-100">
+                                        <span data-bind="ticket.route">NYC → LAX</span>
+                                        <span>•</span>
+                                        <span data-bind="ticket.date">Dec 15, 2024</span>
+                                        <span>•</span>
+                                        <span data-bind="ticket.time">08:30 - 11:50</span>
+                                    </div>
+                                </div>
+                                <div class="mt-4 md:mt-0 flex items-center space-x-4">
+                                    <div class="text-right">
+                                        <div class="text-sm text-blue-100">Ticket #</div>
+                                        <div class="font-mono font-bold" data-bind="ticket.number">TK-789456123</div>
+                                    </div>
+                                    <div class="w-12 h-12 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
+                                        <i class="fas fa-plane text-2xl"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Ticket Body -->
+                        <div class="p-6">
+                            <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+                                <!-- Passenger Info -->
+                                <div>
+                                    <h4 class="text-sm font-medium text-gray-500 uppercase tracking-wide mb-2">Passenger</h4>
+                                    <div class="space-y-1" data-bind="ticket.passengers">
+                                        <p class="font-semibold" data-mock="true">John Doe</p>
+                                        <p class="text-sm text-gray-600" data-mock="true">Adult</p>
+                                    </div>
+                                </div>
+
+                                <!-- Departure -->
+                                <div>
+                                    <h4 class="text-sm font-medium text-gray-500 uppercase tracking-wide mb-2">Departure</h4>
+                                    <div class="space-y-1">
+                                        <p class="font-semibold text-lg" data-bind="ticket.departureTime">08:30</p>
+                                        <p class="text-gray-600" data-bind="ticket.departureAirport">John F. Kennedy (JFK)</p>
+                                        <p class="text-sm text-gray-500" data-bind="ticket.departureDate">December 15, 2024</p>
+                                    </div>
+                                </div>
+
+                                <!-- Arrival -->
+                                <div>
+                                    <h4 class="text-sm font-medium text-gray-500 uppercase tracking-wide mb-2">Arrival</h4>
+                                    <div class="space-y-1">
+                                        <p class="font-semibold text-lg" data-bind="ticket.arrivalTime">11:50</p>
+                                        <p class="text-gray-600" data-bind="ticket.arrivalAirport">Los Angeles Intl (LAX)</p>
+                                        <p class="text-sm text-gray-500" data-bind="ticket.arrivalDate">December 15, 2024</p>
+                                    </div>
+                                </div>
+
+                                <!-- Seat & Class -->
+                                <div>
+                                    <h4 class="text-sm font-medium text-gray-500 uppercase tracking-wide mb-2">Seat & Class</h4>
+                                    <div class="space-y-1">
+                                        <p class="font-semibold text-lg" data-bind="ticket.seat">4B</p>
+                                        <p class="text-gray-600" data-bind="ticket.class">Business Class</p>
+                                        <p class="text-sm text-gray-500" data-bind="ticket.aircraft">Boeing 737-800</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Additional Info -->
+                            <div class="border-t mt-6 pt-6 grid md:grid-cols-2 lg:grid-cols-3 gap-4 text-sm">
+                                <div>
+                                    <span class="text-gray-500">Booking Reference:</span>
+                                    <span class="font-mono font-medium ml-2" data-bind="ticket.bookingRef">ABC123</span>
+                                </div>
+                                <div>
+                                    <span class="text-gray-500">Gate:</span>
+                                    <span class="font-medium ml-2" data-bind="ticket.gate">A12</span>
+                                </div>
+                                <div>
+                                    <span class="text-gray-500">Status:</span>
+                                    <span class="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                        Confirmed
+                                    </span>
+                                </div>
+                            </div>
+
+                            <!-- Actions -->
+                            <div class="border-t mt-6 pt-6 flex flex-col sm:flex-row sm:justify-between items-start sm:items-center space-y-3 sm:space-y-0">
+                                <div class="flex flex-wrap gap-3">
+                                    <button class="inline-flex items-center space-x-2 text-primary hover:text-blue-800 transition-colors" data-event="click:checkIn">
+                                        <i class="fas fa-check-circle"></i>
+                                        <span>Check In</span>
+                                    </button>
+                                    <button class="inline-flex items-center space-x-2 text-gray-600 hover:text-gray-800 transition-colors" data-event="click:changeSeats">
+                                        <i class="fas fa-chair"></i>
+                                        <span>Change Seats</span>
+                                    </button>
+                                    <button class="inline-flex items-center space-x-2 text-gray-600 hover:text-gray-800 transition-colors" data-event="click:addBaggage">
+                                        <i class="fas fa-suitcase"></i>
+                                        <span>Add Baggage</span>
+                                    </button>
+                                </div>
+                                <div class="flex space-x-3">
+                                    <button class="inline-flex items-center space-x-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors" data-event="click:downloadTicket">
+                                        <i class="fas fa-download"></i>
+                                        <span>Download</span>
+                                    </button>
+                                    <button class="inline-flex items-center space-x-2 px-4 py-2 bg-primary hover:bg-blue-800 text-white rounded-lg transition-colors" data-event="click:viewDetails">
+                                        <i class="fas fa-eye"></i>
+                                        <span>View Details</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Past Ticket -->
+                    <div class="bg-white rounded-xl shadow overflow-hidden opacity-75" data-ticket-status="completed" data-mock="true">
+                        <div class="bg-gradient-to-r from-gray-500 to-gray-600 p-6 text-white">
+                            <div class="flex flex-col md:flex-row md:items-center md:justify-between">
+                                <div>
+                                    <h3 class="text-xl font-bold mb-2">Flight GW 5678</h3>
+                                    <div class="flex items-center space-x-4 text-gray-200">
+                                        <span>LAX → NYC</span>
+                                        <span>•</span>
+                                        <span>Nov 28, 2024</span>
+                                        <span>•</span>
+                                        <span>14:15 - 22:30</span>
+                                    </div>
+                                </div>
+                                <div class="mt-4 md:mt-0">
+                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-700 text-gray-200">
+                                        <i class="fas fa-check-circle mr-2"></i>
+                                        Completed
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-6">
+                            <div class="flex items-center justify-between">
+                                <div class="text-sm text-gray-600">
+                                    <span>Ticket #TK-456789012 • Seat 12A • Economy</span>
+                                </div>
+                                <button class="text-gray-400 hover:text-gray-600 transition-colors" data-event="click:viewPastTicket">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- @END_MAP )) -->
+                </div>
+
+                <!-- Empty State -->
+                <div class="empty-tickets-state text-center py-16 hidden" data-empty-state="tickets">
+                    <!-- Illustration of empty airplane seats -->
+                    <div class="w-24 h-24 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <i class="fas fa-ticket-alt text-4xl text-gray-400"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-900 mb-2">No tickets found</h3>
+                    <p class="text-gray-600 mb-8">You haven't booked any flights yet. Start planning your next adventure!</p>
+                    <button class="bg-primary hover:bg-blue-800 text-white px-6 py-3 rounded-lg transition-colors">
+                        Book Your First Flight
+                    </button>
+                </div>
+            </div>
+        </section>
+        <!-- @END_COMPONENT: TicketsPage -->
+
+        <!-- @COMPONENT: TransactionsPage [transaction history] -->
+        <section class="transactions-section hidden" data-section="transactions">
+            <div class="max-w-7xl mx-auto px-4 py-8">
+                <!-- Page Header -->
+                <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
+                    <div>
+                        <h2 class="text-3xl font-bold text-gray-900 mb-2">Transaction History</h2>
+                        <p class="text-gray-600">View all your booking payments and refunds</p>
+                    </div>
+                    <!-- Filters -->
+                    <div class="mt-4 md:mt-0 flex space-x-2">
+                        <select class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent" data-bind="filters.timeRange">
+                            <option value="all">All Time</option>
+                            <option value="30">Last 30 days</option>
+                            <option value="90">Last 3 months</option>
+                            <option value="365">Last year</option>
+                        </select>
+                        <select class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent" data-bind="filters.status">
+                            <option value="all">All Status</option>
+                            <option value="completed">Completed</option>
+                            <option value="pending">Pending</option>
+                            <option value="refunded">Refunded</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Summary Cards -->
+                <div class="grid md:grid-cols-3 gap-6 mb-8">
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-gray-500">Total Spent</p>
+                                <p class="text-2xl font-bold text-gray-900" data-bind="summary.totalSpent">$2,456</p>
+                            </div>
+                            <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+                                <i class="fas fa-dollar-sign text-green-600 text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-gray-500">Total Bookings</p>
+                                <p class="text-2xl font-bold text-gray-900" data-bind="summary.totalBookings">8</p>
+                            </div>
+                            <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                                <i class="fas fa-ticket-alt text-blue-600 text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-gray-500">Pending</p>
+                                <p class="text-2xl font-bold text-gray-900" data-bind="summary.pending">$0</p>
+                            </div>
+                            <div class="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center">
+                                <i class="fas fa-clock text-yellow-600 text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Transactions Table -->
+                <div class="bg-white rounded-lg shadow overflow-hidden">
+                    <div class="px-6 py-4 border-b border-gray-200">
+                        <h3 class="text-lg font-semibold">Recent Transactions</h3>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Transaction ID
+                                    </th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Booking Details
+                                    </th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Amount
+                                    </th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Payment Method
+                                    </th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Date
+                                    </th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Status
+                                    </th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Actions
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                <!-- @MAP: transactions.map(transaction => ( -->
+                                <tr data-mock="true">
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="text-sm font-mono font-medium text-gray-900" data-bind="transaction.id">TXN-789456123</div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="text-sm font-medium text-gray-900" data-bind="transaction.bookingRef">SK 1234</div>
+                                        <div class="text-sm text-gray-500" data-bind="transaction.route">NYC → LAX</div>
+                                        <div class="text-xs text-gray-400" data-bind="transaction.flightDate">Dec 15, 2024</div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="text-sm font-medium text-gray-900" data-bind="transaction.amount">$682.00</div>
+                                        <div class="text-xs text-gray-500">2 passengers</div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            <i class="fas fa-credit-card text-gray-400 mr-2"></i>
+                                            <span class="text-sm text-gray-900" data-bind="transaction.paymentMethod">•••• 1234</span>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="text-sm text-gray-900" data-bind="transaction.date">Dec 10, 2024</div>
+                                        <div class="text-xs text-gray-500" data-bind="transaction.time">2:30 PM</div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                            Completed
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                        <div class="flex space-x-2">
+                                            <button class="text-primary hover:text-blue-800" data-event="click:downloadReceipt">
+                                                <i class="fas fa-download"></i>
+                                            </button>
+                                            <button class="text-gray-400 hover:text-gray-600" data-event="click:viewTransaction">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+
+                                <tr data-mock="true">
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="text-sm font-mono font-medium text-gray-900">TXN-456789012</div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="text-sm font-medium text-gray-900">GW 5678</div>
+                                        <div class="text-sm text-gray-500">LAX → NYC</div>
+                                        <div class="text-xs text-gray-400">Nov 28, 2024</div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="text-sm font-medium text-gray-900">$459.00</div>
+                                        <div class="text-xs text-gray-500">1 passenger</div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            <i class="fab fa-paypal text-blue-600 mr-2"></i>
+                                            <span class="text-sm text-gray-900">PayPal</span>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="text-sm text-gray-900">Nov 25, 2024</div>
+                                        <div class="text-xs text-gray-500">11:15 AM</div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                            Completed
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                        <div class="flex space-x-2">
+                                            <button class="text-primary hover:text-blue-800" data-event="click:downloadReceipt">
+                                                <i class="fas fa-download"></i>
+                                            </button>
+                                            <button class="text-gray-400 hover:text-gray-600" data-event="click:viewTransaction">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+
+                                <tr data-mock="true">
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="text-sm font-mono font-medium text-gray-900">TXN-123456789</div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="text-sm font-medium text-gray-900">Refund - HZ 9012</div>
+                                        <div class="text-sm text-gray-500">NYC → MIA</div>
+                                        <div class="text-xs text-gray-400">Oct 15, 2024</div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="text-sm font-medium text-green-600">+$320.00</div>
+                                        <div class="text-xs text-gray-500">Refund</div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            <i class="fas fa-credit-card text-gray-400 mr-2"></i>
+                                            <span class="text-sm text-gray-900">•••• 5678</span>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="text-sm text-gray-900">Oct 12, 2024</div>
+                                        <div class="text-xs text-gray-500">4:45 PM</div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                            Refunded
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                        <div class="flex space-x-2">
+                                            <button class="text-primary hover:text-blue-800" data-event="click:downloadReceipt">
+                                                <i class="fas fa-download"></i>
+                                            </button>
+                                            <button class="text-gray-400 hover:text-gray-600" data-event="click:viewTransaction">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <!-- @END_MAP )) -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Pagination -->
+                    <div class="bg-white px-4 py-3 border-t border-gray-200 sm:px-6">
+                        <div class="flex items-center justify-between">
+                            <div class="flex-1 flex justify-between sm:hidden">
+                                <button class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                                    Previous
+                                </button>
+                                <button class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                                    Next
+                                </button>
+                            </div>
+                            <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                                <div>
+                                    <p class="text-sm text-gray-700">
+                                        Showing <span class="font-medium">1</span> to <span class="font-medium">10</span> of{' '}
+                                        <span class="font-medium" data-bind="pagination.total">24</span> results
+                                    </p>
+                                </div>
+                                <div>
+                                    <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
+                                        <button class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                            <i class="fas fa-chevron-left"></i>
+                                        </button>
+                                        <button class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-primary text-sm font-medium text-white">
+                                            1
+                                        </button>
+                                        <button class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
+                                            2
+                                        </button>
+                                        <button class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
+                                            3
+                                        </button>
+                                        <button class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                            <i class="fas fa-chevron-right"></i>
+                                        </button>
+                                    </nav>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Empty State -->
+                <div class="empty-transactions-state text-center py-16 hidden" data-empty-state="transactions">
+                    <div class="w-24 h-24 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <i class="fas fa-receipt text-4xl text-gray-400"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-900 mb-2">No transactions found</h3>
+                    <p class="text-gray-600 mb-8">Your transaction history will appear here once you make your first booking.</p>
+                </div>
+            </div>
+        </section>
+        <!-- @END_COMPONENT: TransactionsPage -->
+
+        <!-- @COMPONENT: EmployeeDashboard [CRUD operations for employees] -->
+        <section class="employee-dashboard-section hidden" data-section="employee-dashboard" data-employee-only="true">
+            <div class="max-w-7xl mx-auto px-4 py-8">
+                <!-- Dashboard Header -->
+                <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
+                    <div>
+                        <h2 class="text-3xl font-bold text-gray-900 mb-2">Employee Dashboard</h2>
+                        <p class="text-gray-600">Manage passengers, tickets, and flight operations</p>
+                    </div>
+                    <div class="mt-4 md:mt-0 flex items-center space-x-2 bg-blue-50 text-primary px-4 py-2 rounded-lg">
+                        <i class="fas fa-user-tie"></i>
+                        <span class="text-sm font-medium" data-bind="employee.name">Sarah Johnson</span>
+                        <span class="text-xs text-blue-600 bg-white px-2 py-1 rounded-full ml-2" data-bind="employee.role">Operations Manager</span>
+                    </div>
+                </div>
+
+                <!-- Dashboard Stats -->
+                <div class="grid md:grid-cols-4 gap-6 mb-8">
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-gray-500">Total Passengers</p>
+                                <p class="text-2xl font-bold text-gray-900" data-bind="stats.totalPassengers">2,456</p>
+                            </div>
+                            <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                                <i class="fas fa-users text-blue-600 text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-gray-500">Active Tickets</p>
+                                <p class="text-2xl font-bold text-gray-900" data-bind="stats.activeTickets">324</p>
+                            </div>
+                            <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+                                <i class="fas fa-ticket-alt text-green-600 text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-gray-500">Today's Flights</p>
+                                <p class="text-2xl font-bold text-gray-900" data-bind="stats.todaysFlights">45</p>
+                            </div>
+                            <div class="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center">
+                                <i class="fas fa-plane text-yellow-600 text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-gray-500">Revenue Today</p>
+                                <p class="text-2xl font-bold text-gray-900" data-bind="stats.todayRevenue">$28,450</p>
+                            </div>
+                            <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
+                                <i class="fas fa-dollar-sign text-purple-600 text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Dashboard Tabs -->
+                <div class="bg-white rounded-lg shadow overflow-hidden">
+                    <!-- Tab Headers -->
+                    <div class="border-b border-gray-200">
+                        <nav class="-mb-px flex space-x-8 px-6">
+                            <button class="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors tab-button active" data-tab="passengers">
+                                <i class="fas fa-users mr-2"></i>
+                                Passengers
+                            </button>
+                            <button class="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors tab-button" data-tab="tickets">
+                                <i class="fas fa-ticket-alt mr-2"></i>
+                                Tickets
+                            </button>
+                            <button class="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors tab-button" data-tab="flights">
+                                <i class="fas fa-plane mr-2"></i>
+                                Flight Management
+                            </button>
+                        </nav>
+                    </div>
+
+                    <!-- Passengers Tab -->
+                    <div class="tab-content active" data-tab-content="passengers">
+                        <div class="p-6">
+                            <!-- Passengers Header -->
+                            <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
+                                <h3 class="text-lg font-semibold">Passenger Management</h3>
+                                <div class="mt-4 md:mt-0 flex space-x-3">
+                                    <div class="flex-1 md:w-64">
+                                        <input type="text" placeholder="Search passengers..." class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent" data-bind="search.passengers">
+                                    </div>
+                                    <button class="bg-primary hover:bg-blue-800 text-white px-4 py-2 rounded-lg transition-colors flex items-center space-x-2" data-event="click:addPassenger">
+                                        <i class="fas fa-plus"></i>
+                                        <span>Add Passenger</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Passengers Table -->
+                            <div class="overflow-x-auto">
+                                <table class="min-w-full divide-y divide-gray-200">
+                                    <thead class="bg-gray-50">
+                                        <tr>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                Passenger Details
+                                            </th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                Contact Info
+                                            </th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                Document Info
+                                            </th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                Bookings
+                                            </th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                Status
+                                            </th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                Actions
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="bg-white divide-y divide-gray-200">
+                                        <!-- @MAP: passengers.map(passenger => ( -->
+                                        <tr data-mock="true">
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <div class="flex items-center">
+                                                    <div class="flex-shrink-0 h-10 w-10">
+                                                        <div class="h-10 w-10 rounded-full bg-primary flex items-center justify-center">
+                                                            <span class="text-white font-medium">JD</span>
+                                                        </div>
+                                                    </div>
+                                                    <div class="ml-4">
+                                                        <div class="text-sm font-medium text-gray-900" data-bind="passenger.name">John Doe</div>
+                                                        <div class="text-sm text-gray-500" data-bind="passenger.dateOfBirth">DOB: Jan 15, 1985</div>
+                                                        <div class="text-xs text-gray-400" data-bind="passenger.id">ID: PSG-001</div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <div class="text-sm text-gray-900" data-bind="passenger.email">john.doe@email.com</div>
+                                                <div class="text-sm text-gray-500" data-bind="passenger.phone">+1 (555) 123-4567</div>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <div class="text-sm text-gray-900" data-bind="passenger.passportNumber">A12345678</div>
+                                                <div class="text-sm text-gray-500" data-bind="passenger.nationality">USA</div>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <div class="text-sm font-medium text-gray-900" data-bind="passenger.bookingCount">3 bookings</div>
+                                                <div class="text-sm text-gray-500" data-bind="passenger.lastBooking">Last: Dec 15, 2024</div>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                                    Active
+                                                </span>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                                <div class="flex space-x-2">
+                                                    <button class="text-primary hover:text-blue-800" data-event="click:editPassenger" data-passenger-id="001">
+                                                        <i class="fas fa-edit"></i>
+                                                    </button>
+                                                    <button class="text-gray-400 hover:text-gray-600" data-event="click:viewPassenger" data-passenger-id="001">
+                                                        <i class="fas fa-eye"></i>
+                                                    </button>
+                                                    <button class="text-red-400 hover:text-red-600" data-event="click:deletePassenger" data-passenger-id="001">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+
+                                        <tr data-mock="true">
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <div class="flex items-center">
+                                                    <div class="flex-shrink-0 h-10 w-10">
+                                                        <div class="h-10 w-10 rounded-full bg-purple-500 flex items-center justify-center">
+                                                            <span class="text-white font-medium">JS</span>
+                                                        </div>
+                                                    </div>
+                                                    <div class="ml-4">
+                                                        <div class="text-sm font-medium text-gray-900">Jane Smith</div>
+                                                        <div class="text-sm text-gray-500">DOB: Mar 22, 1990</div>
+                                                        <div class="text-xs text-gray-400">ID: PSG-002</div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <div class="text-sm text-gray-900">jane.smith@email.com</div>
+                                                <div class="text-sm text-gray-500">+1 (555) 987-6543</div>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <div class="text-sm text-gray-900">B87654321</div>
+                                                <div class="text-sm text-gray-500">Canada</div>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <div class="text-sm font-medium text-gray-900">1 booking</div>
+                                                <div class="text-sm text-gray-500">Last: Dec 15, 2024</div>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                                    Active
+                                                </span>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                                <div class="flex space-x-2">
+                                                    <button class="text-primary hover:text-blue-800" data-event="click:editPassenger" data-passenger-id="002">
+                                                        <i class="fas fa-edit"></i>
+                                                    </button>
+                                                    <button class="text-gray-400 hover:text-gray-600" data-event="click:viewPassenger" data-passenger-id="002">
+                                                        <i class="fas fa-eye"></i>
+                                                    </button>
+                                                    <button class="text-red-400 hover:text-red-600" data-event="click:deletePassenger" data-passenger-id="002">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <!-- @END_MAP )) -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tickets Tab -->
+                    <div class="tab-content hidden" data-tab-content="tickets">
+                        <div class="p-6">
+                            <!-- Tickets Header -->
+                            <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
+                                <h3 class="text-lg font-semibold">Ticket Management</h3>
+                                <div class="mt-4 md:mt-0 flex space-x-3">
+                                    <select class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent" data-bind="filters.ticketStatus">
+                                        <option value="all">All Status</option>
+                                        <option value="confirmed">Confirmed</option>
+                                        <option value="checked-in">Checked In</option>
+                                        <option value="cancelled">Cancelled</option>
+                                    </select>
+                                    <div class="flex-1 md:w-64">
+                                        <input type="text" placeholder="Search tickets..." class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent" data-bind="search.tickets">
+                                    </div>
+                                    <button class="bg-primary hover:bg-blue-800 text-white px-4 py-2 rounded-lg transition-colors flex items-center space-x-2" data-event="click:createTicket">
+                                        <i class="fas fa-plus"></i>
+                                        <span>Create Ticket</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Tickets Table -->
+                            <div class="overflow-x-auto">
+                                <table class="min-w-full divide-y divide-gray-200">
+                                    <thead class="bg-gray-50">
+                                        <tr>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                Ticket Details
+                                            </th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                Passenger
+                                            </th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                Flight Info
+                                            </th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                Seat & Class
+                                            </th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                Status
+                                            </th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                Actions
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="bg-white divide-y divide-gray-200">
+                                        <!-- @MAP: tickets.map(ticket => ( -->
+                                        <tr data-mock="true">
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <div class="text-sm font-mono font-medium text-gray-900" data-bind="ticket.number">TK-789456123</div>
+                                                <div class="text-sm text-gray-500" data-bind="ticket.bookingRef">Booking: ABC123</div>
+                                                <div class="text-xs text-gray-400" data-bind="ticket.issueDate">Issued: Dec 10, 2024</div>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <div class="text-sm font-medium text-gray-900" data-bind="ticket.passengerName">John Doe</div>
+                                                <div class="text-sm text-gray-500" data-bind="ticket.passengerEmail">john.doe@email.com</div>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <div class="text-sm font-medium text-gray-900" data-bind="ticket.flightNumber">SK 1234</div>
+                                                <div class="text-sm text-gray-500" data-bind="ticket.route">NYC → LAX</div>
+                                                <div class="text-xs text-gray-400" data-bind="ticket.flightDate">Dec 15, 2024 08:30</div>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <div class="text-sm font-medium text-gray-900" data-bind="ticket.seat">4B</div>
+                                                <div class="text-sm text-gray-500" data-bind="ticket.class">Business</div>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                                    Confirmed
+                                                </span>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                                <div class="flex space-x-2">
+                                                    <button class="text-primary hover:text-blue-800" data-event="click:editTicket" data-ticket-id="TK-789456123">
+                                                        <i class="fas fa-edit"></i>
+                                                    </button>
+                                                    <button class="text-gray-400 hover:text-gray-600" data-event="click:viewTicket" data-ticket-id="TK-789456123">
+                                                        <i class="fas fa-eye"></i>
+                                                    </button>
+                                                    <button class="text-red-400 hover:text-red-600" data-event="click:cancelTicket" data-ticket-id="TK-789456123">
+                                                        <i class="fas fa-times-circle"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+
+                                        <tr data-mock="true">
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <div class="text-sm font-mono font-medium text-gray-900">TK-456789012</div>
+                                                <div class="text-sm text-gray-500">Booking: XYZ789</div>
+                                                <div class="text-xs text-gray-400">Issued: Nov 25, 2024</div>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <div class="text-sm font-medium text-gray-900">Jane Smith</div>
+                                                <div class="text-sm text-gray-500">jane.smith@email.com</div>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <div class="text-sm font-medium text-gray-900">GW 5678</div>
+                                                <div class="text-sm text-gray-500">LAX → NYC</div>
+                                                <div class="text-xs text-gray-400">Nov 28, 2024 14:15</div>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <div class="text-sm font-medium text-gray-900">12A</div>
+                                                <div class="text-sm text-gray-500">Economy</div>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                                    Checked In
+                                                </span>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                                <div class="flex space-x-2">
+                                                    <button class="text-primary hover:text-blue-800" data-event="click:editTicket" data-ticket-id="TK-456789012">
+                                                        <i class="fas fa-edit"></i>
+                                                    </button>
+                                                    <button class="text-gray-400 hover:text-gray-600" data-event="click:viewTicket" data-ticket-id="TK-456789012">
+                                                        <i class="fas fa-eye"></i>
+                                                    </button>
+                                                    <button class="text-red-400 hover:text-red-600" data-event="click:cancelTicket" data-ticket-id="TK-456789012">
+                                                        <i class="fas fa-times-circle"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <!-- @END_MAP )) -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Flights Tab -->
+                    <div class="tab-content hidden" data-tab-content="flights">
+                        <div class="p-6">
+                            <!-- Flights Header -->
+                            <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
+                                <h3 class="text-lg font-semibold">Flight Management</h3>
+                                <div class="mt-4 md:mt-0 flex space-x-3">
+                                    <select class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent" data-bind="filters.flightStatus">
+                                        <option value="all">All Flights</option>
+                                        <option value="scheduled">Scheduled</option>
+                                        <option value="boarding">Boarding</option>
+                                        <option value="departed">Departed</option>
+                                        <option value="arrived">Arrived</option>
+                                        <option value="cancelled">Cancelled</option>
+                                    </select>
+                                    <button class="bg-primary hover:bg-blue-800 text-white px-4 py-2 rounded-lg transition-colors flex items-center space-x-2" data-event="click:addFlight">
+                                        <i class="fas fa-plus"></i>
+                                        <span>Add Flight</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Flights Cards -->
+                            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                <!-- @MAP: flights.map(flight => ( -->
+                                <div class="bg-white border border-gray-200 rounded-lg hover:shadow-md transition-shadow" data-mock="true">
+                                    <div class="p-6">
+                                        <div class="flex items-center justify-between mb-4">
+                                            <div class="text-lg font-semibold text-gray-900" data-bind="flight.number">SK 1234</div>
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800" data-bind="flight.status">
+                                                On Time
+                                            </span>
+                                        </div>
+                                        
+                                        <div class="space-y-3 mb-4">
+                                            <div class="flex items-center justify-between">
+                                                <div>
+                                                    <div class="text-sm text-gray-500">From</div>
+                                                    <div class="font-medium" data-bind="flight.origin">New York (JFK)</div>
+                                                    <div class="text-sm text-gray-600" data-bind="flight.departureTime">08:30</div>
+                                                </div>
+                                                <div class="flex-1 px-4">
+                                                    <div class="h-px bg-gray-300 relative">
+                                                        <i class="fas fa-plane absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white text-primary px-1"></i>
+                                                    </div>
+                                                </div>
+                                                <div class="text-right">
+                                                    <div class="text-sm text-gray-500">To</div>
+                                                    <div class="font-medium" data-bind="flight.destination">Los Angeles (LAX)</div>
+                                                    <div class="text-sm text-gray-600" data-bind="flight.arrivalTime">11:50</div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="grid grid-cols-3 gap-4 text-sm">
+                                            <div>
+                                                <div class="text-gray-500">Aircraft</div>
+                                                <div class="font-medium" data-bind="flight.aircraft">B737-800</div>
+                                            </div>
+                                            <div>
+                                                <div class="text-gray-500">Gate</div>
+                                                <div class="font-medium" data-bind="flight.gate">A12</div>
+                                            </div>
+                                            <div>
+                                                <div class="text-gray-500">Passengers</div>
+                                                <div class="font-medium" data-bind="flight.passengers">156/180</div>
+                                            </div>
+                                        </div>
+
+                                        <div class="mt-4 pt-4 border-t flex justify-between">
+                                            <button class="text-primary hover:text-blue-800 text-sm" data-event="click:editFlight" data-flight-id="SK1234">
+                                                <i class="fas fa-edit mr-1"></i>Edit
+                                            </button>
+                                            <button class="text-gray-500 hover:text-gray-700 text-sm" data-event="click:viewFlightDetails" data-flight-id="SK1234">
+                                                <i class="fas fa-eye mr-1"></i>Details
+                                            </button>
+                                            <button class="text-red-500 hover:text-red-700 text-sm" data-event="click:cancelFlight" data-flight-id="SK1234">
+                                                <i class="fas fa-times mr-1"></i>Cancel
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="bg-white border border-gray-200 rounded-lg hover:shadow-md transition-shadow" data-mock="true">
+                                    <div class="p-6">
+                                        <div class="flex items-center justify-between mb-4">
+                                            <div class="text-lg font-semibold text-gray-900">GW 5678</div>
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                                Boarding
+                                            </span>
+                                        </div>
+                                        
+                                        <div class="space-y-3 mb-4">
+                                            <div class="flex items-center justify-between">
+                                                <div>
+                                                    <div class="text-sm text-gray-500">From</div>
+                                                    <div class="font-medium">Los Angeles (LAX)</div>
+                                                    <div class="text-sm text-gray-600">14:15</div>
+                                                </div>
+                                                <div class="flex-1 px-4">
+                                                    <div class="h-px bg-gray-300 relative">
+                                                        <i class="fas fa-plane absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white text-primary px-1"></i>
+                                                    </div>
+                                                </div>
+                                                <div class="text-right">
+                                                    <div class="text-sm text-gray-500">To</div>
+                                                    <div class="font-medium">New York (JFK)</div>
+                                                    <div class="text-sm text-gray-600">22:30</div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="grid grid-cols-3 gap-4 text-sm">
+                                            <div>
+                                                <div class="text-gray-500">Aircraft</div>
+                                                <div class="font-medium">A320</div>
+                                            </div>
+                                            <div>
+                                                <div class="text-gray-500">Gate</div>
+                                                <div class="font-medium">B07</div>
+                                            </div>
+                                            <div>
+                                                <div class="text-gray-500">Passengers</div>
+                                                <div class="font-medium">145/160</div>
+                                            </div>
+                                        </div>
+
+                                        <div class="mt-4 pt-4 border-t flex justify-between">
+                                            <button class="text-primary hover:text-blue-800 text-sm" data-event="click:editFlight" data-flight-id="GW5678">
+                                                <i class="fas fa-edit mr-1"></i>Edit
+                                            </button>
+                                            <button class="text-gray-500 hover:text-gray-700 text-sm" data-event="click:viewFlightDetails" data-flight-id="GW5678">
+                                                <i class="fas fa-eye mr-1"></i>Details
+                                            </button>
+                                            <button class="text-red-500 hover:text-red-700 text-sm" data-event="click:cancelFlight" data-flight-id="GW5678">
+                                                <i class="fas fa-times mr-1"></i>Cancel
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- @END_MAP )) -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- @END_COMPONENT: EmployeeDashboard -->
+
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white mt-16">
+        <div class="max-w-7xl mx-auto px-4 py-12">
+            <div class="grid md:grid-cols-4 gap-8">
+                <div class="col-span-1">
+                    <h3 class="text-xl font-bold mb-4">
+                        <i class="fas fa-plane mr-2"></i>SkyReserve
+                    </h3>
+                    <p class="text-gray-300 text-sm">Your trusted partner for seamless flight bookings and exceptional travel experiences.</p>
+                </div>
+                <div>
+                    <h4 class="font-semibold mb-4">Quick Links</h4>
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="#" class="text-gray-300 hover:text-white transition-colors">Book Flight</a></li>
+                        <li><a href="#" class="text-gray-300 hover:text-white transition-colors">Check-in</a></li>
+                        <li><a href="#" class="text-gray-300 hover:text-white transition-colors">Flight Status</a></li>
+                        <li><a href="#" class="text-gray-300 hover:text-white transition-colors">Manage Booking</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-semibold mb-4">Support</h4>
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="#" class="text-gray-300 hover:text-white transition-colors">Help Center</a></li>
+                        <li><a href="#" class="text-gray-300 hover:text-white transition-colors">Contact Us</a></li>
+                        <li><a href="#" class="text-gray-300 hover:text-white transition-colors">Travel Policies</a></li>
+                        <li><a href="#" class="text-gray-300 hover:text-white transition-colors">Terms & Conditions</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-semibold mb-4">Contact</h4>
+                    <div class="space-y-2 text-sm text-gray-300">
+                        <p><i class="fas fa-phone mr-2"></i>+1 (800) SKY-RESERVE</p>
+                        <p><i class="fas fa-envelope mr-2"></i>support@skyreserve.com</p>
+                        <div class="flex space-x-4 mt-4">
+                            <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                                <i class="fab fa-facebook"></i>
+                            </a>
+                            <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SkyLine Airlines - Reservation System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'sans': ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                    colors: {
+                        'airline-blue': '#1E40AF',
+                        'sky-blue': '#3B82F6',
+                        'slate-gray': '#64748B',
+                    }
+                }
+            }
+        };
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gray-50 font-sans">
+    <!-- @COMPONENT: NavigationBar [user role, authentication state] -->
+    <nav class="bg-white shadow-lg border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 flex items-center">
+                        <i class="fas fa-plane text-airline-blue text-2xl mr-2"></i>
+                        <span class="text-xl font-bold text-gray-900">SkyLine Airlines</span>
+                    </div>
+                    <div class="hidden md:ml-6 md:flex md:space-x-8">
+                        <a href="#home" data-bind="navigation.home" class="text-airline-blue border-b-2 border-airline-blue px-1 pt-1 pb-1 text-sm font-medium">Home</a>
+                        <a href="#book" data-bind="navigation.book" class="text-gray-500 hover:text-gray-700 px-1 pt-1 pb-1 text-sm font-medium">Book Flight</a>
+                        <a href="#tickets" data-bind="navigation.tickets" class="text-gray-500 hover:text-gray-700 px-1 pt-1 pb-1 text-sm font-medium">My Tickets</a>
+                        <a href="#transactions" data-bind="navigation.transactions" class="text-gray-500 hover:text-gray-700 px-1 pt-1 pb-1 text-sm font-medium">Transactions</a>
+                        <a href="#dashboard" data-bind="navigation.employee" class="text-gray-500 hover:text-gray-700 px-1 pt-1 pb-1 text-sm font-medium hidden" data-role="employee">Employee Dashboard</a>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div class="hidden" data-authenticated="true">
+                        <span class="text-sm text-gray-700" data-bind="user.name">John Doe</span>
+                        <button data-event="click:handleLogout" class="ml-3 text-sm text-gray-500 hover:text-gray-700">Logout</button>
+                    </div>
+                    <div class="flex space-x-2" data-authenticated="false">
+                        <button data-event="click:showLogin" class="bg-airline-blue text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-700">Login</button>
+                        <button data-event="click:showSignup" class="border border-airline-blue text-airline-blue px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-50">Sign Up</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+    <!-- @END_COMPONENT: NavigationBar -->
+
+    <!-- @COMPONENT: HomePage [flight search, hero section] -->
+    <div id="home-page" class="min-h-screen">
+        <!-- Hero Section -->
+        <div class="relative">
+            <!-- Modern airport terminal with glass architecture and travelers with luggage -->
+            <div class="h-96 bg-cover bg-center relative" style="background-image: linear-gradient(rgba(30, 64, 175, 0.4), rgba(30, 64, 175, 0.4)), url('https://images.unsplash.com/photo-1436491865332-7a61a109cc05?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2074&h=600');">
+                <div class="absolute inset-0 flex items-center justify-center">
+                    <div class="text-center text-white">
+                        <h1 class="text-5xl font-bold mb-4">Your Journey Begins Here</h1>
+                        <p class="text-xl mb-8">Find the best flights at unbeatable prices</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Flight Search Section -->
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-24 relative z-10">
+            <div class="bg-white rounded-lg shadow-xl p-6">
+                <h2 class="text-2xl font-bold text-gray-900 mb-6">Search Flights</h2>
+                <form data-event="submit:handleFlightSearch" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <!-- @STATE: searchForm:object = {from: '', to: '', departDate: '', returnDate: '', passengers: 1} -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">From</label>
+                        <div class="relative">
+                            <i class="fas fa-plane-departure absolute left-3 top-3 text-gray-400"></i>
+                            <input type="text" data-bind="searchForm.from" placeholder="Departure city" class="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-airline-blue">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">To</label>
+                        <div class="relative">
+                            <i class="fas fa-plane-arrival absolute left-3 top-3 text-gray-400"></i>
+                            <input type="text" data-bind="searchForm.to" placeholder="Destination city" class="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-airline-blue">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Departure Date</label>
+                        <input type="date" data-bind="searchForm.departDate" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-airline-blue">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Passengers</label>
+                        <select data-bind="searchForm.passengers" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-airline-blue">
+                            <option value="1">1 Passenger</option>
+                            <option value="2">2 Passengers</option>
+                            <option value="3">3 Passengers</option>
+                            <option value="4">4+ Passengers</option>
+                        </select>
+                    </div>
+                    <div class="md:col-span-4">
+                        <button type="submit" data-implementation="Should validate form and search flights" class="w-full bg-airline-blue text-white py-3 px-6 rounded-md font-semibold hover:bg-blue-700 transition duration-200">
+                            <i class="fas fa-search mr-2"></i>Search Flights
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Features Section -->
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold text-gray-900">Why Choose SkyLine Airlines?</h2>
+                <p class="text-gray-600 mt-4">Experience the difference with our premium services</p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="text-center">
+                    <div class="bg-blue-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-clock text-airline-blue text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-900 mb-2">24/7 Support</h3>
+                    <p class="text-gray-600">Round-the-clock customer service for all your travel needs</p>
+                </div>
+                <div class="text-center">
+                    <div class="bg-blue-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-shield-alt text-airline-blue text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-900 mb-2">Secure Booking</h3>
+                    <p class="text-gray-600">Your personal and payment information is always protected</p>
+                </div>
+                <div class="text-center">
+                    <div class="bg-blue-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-dollar-sign text-airline-blue text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-900 mb-2">Best Prices</h3>
+                    <p class="text-gray-600">Competitive rates and exclusive deals for our customers</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- @END_COMPONENT: HomePage -->
+
+    <!-- @COMPONENT: LoginModal [user type selection, form validation] -->
+    <div id="login-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-lg shadow-xl max-w-md w-full">
+                <div class="p-6">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-2xl font-bold text-gray-900">Login</h2>
+                        <button data-event="click:closeModal" class="text-gray-400 hover:text-gray-600">
+                            <i class="fas fa-times text-xl"></i>
+                        </button>
+                    </div>
+                    
+                    <!-- Role Selection -->
+                    <div class="mb-6">
+                        <div class="flex space-x-4">
+                            <button data-event="click:selectCustomerRole" class="flex-1 py-2 px-4 border-2 border-airline-blue bg-airline-blue text-white rounded-md font-medium">Customer</button>
+                            <button data-event="click:selectEmployeeRole" class="flex-1 py-2 px-4 border-2 border-gray-300 text-gray-700 rounded-md font-medium hover:border-airline-blue">Employee</button>
+                        </div>
+                    </div>
+
+                    <form data-event="submit:handleLogin">
+                        <!-- @STATE: loginForm:object = {email: '', password: '', role: 'customer'} -->
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                            <input type="email" data-bind="loginForm.email" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-airline-blue">
+                        </div>
+                        <div class="mb-6">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Password</label>
+                            <input type="password" data-bind="loginForm.password" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-airline-blue">
+                        </div>
+                        <button type="submit" data-implementation="Should authenticate user with JWT" class="w-full bg-airline-blue text-white py-2 px-4 rounded-md font-semibold hover:bg-blue-700 transition duration-200">Login</button>
+                    </form>
+                    
+                    <p class="text-center text-sm text-gray-600 mt-4">
+                        Don't have an account? 
+                        <button data-event="click:showSignup" class="text-airline-blue hover:underline">Sign up here</button>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- @END_COMPONENT: LoginModal -->
+
+    <!-- @COMPONENT: BookingPage [flight results, seat selection] -->
+    <div id="booking-page" class="min-h-screen bg-gray-50 hidden">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div class="mb-8">
+                <h1 class="text-3xl font-bold text-gray-900">Book Your Flight</h1>
+                <p class="text-gray-600 mt-2">Search results for <span data-bind="searchParams.route" data-mock="true">New York to Los Angeles</span></p>
+            </div>
+
+            <!-- Flight Results -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div class="lg:col-span-2">
+                    <h2 class="text-xl font-semibold text-gray-900 mb-4">Available Flights</h2>
+                    
+                    <!-- @MAP: flights.map(flight => ( -->
+                    <div data-mock="true" class="bg-white rounded-lg shadow-md border border-gray-200 mb-4 hover:shadow-lg transition duration-200">
+                        <div class="p-6">
+                            <div class="flex justify-between items-start">
+                                <div class="flex-1">
+                                    <div class="flex items-center space-x-4 mb-4">
+                                        <div class="text-center">
+                                            <div class="text-2xl font-bold text-gray-900" data-bind="flight.departTime">08:30</div>
+                                            <div class="text-sm text-gray-600" data-bind="flight.departCode">JFK</div>
+                                        </div>
+                                        <div class="flex-1 relative">
+                                            <div class="border-t-2 border-gray-300"></div>
+                                            <i class="fas fa-plane absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-airline-blue bg-white px-2"></i>
+                                            <div class="text-center text-sm text-gray-600 mt-2" data-bind="flight.duration">5h 30m</div>
+                                        </div>
+                                        <div class="text-center">
+                                            <div class="text-2xl font-bold text-gray-900" data-bind="flight.arriveTime">14:00</div>
+                                            <div class="text-sm text-gray-600" data-bind="flight.arriveCode">LAX</div>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center space-x-4 text-sm text-gray-600">
+                                        <span data-bind="flight.airline">SkyLine Airlines</span>
+                                        <span data-bind="flight.flightNumber">SL 1234</span>
+                                        <span data-bind="flight.aircraft">Boeing 737</span>
+                                    </div>
+                                </div>
+                                <div class="text-right ml-6">
+                                    <div class="text-2xl font-bold text-gray-900" data-bind="flight.price">$299</div>
+                                    <div class="text-sm text-gray-600">per person</div>
+                                    <button data-event="click:selectFlight" data-flight-id="1" class="mt-3 bg-airline-blue text-white px-6 py-2 rounded-md font-semibold hover:bg-blue-700 transition duration-200">Select</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- @END_MAP )) -->
+
+                    <div data-mock="true" class="bg-white rounded-lg shadow-md border border-gray-200 mb-4">
+                        <div class="p-6">
+                            <div class="flex justify-between items-start">
+                                <div class="flex-1">
+                                    <div class="flex items-center space-x-4 mb-4">
+                                        <div class="text-center">
+                                            <div class="text-2xl font-bold text-gray-900">15:45</div>
+                                            <div class="text-sm text-gray-600">JFK</div>
+                                        </div>
+                                        <div class="flex-1 relative">
+                                            <div class="border-t-2 border-gray-300"></div>
+                                            <i class="fas fa-plane absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-airline-blue bg-white px-2"></i>
+                                            <div class="text-center text-sm text-gray-600 mt-2">6h 15m</div>
+                                        </div>
+                                        <div class="text-center">
+                                            <div class="text-2xl font-bold text-gray-900">19:00</div>
+                                            <div class="text-sm text-gray-600">LAX</div>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center space-x-4 text-sm text-gray-600">
+                                        <span>SkyLine Airlines</span>
+                                        <span>SL 5678</span>
+                                        <span>Airbus A320</span>
+                                    </div>
+                                </div>
+                                <div class="text-right ml-6">
+                                    <div class="text-2xl font-bold text-gray-900">$349</div>
+                                    <div class="text-sm text-gray-600">per person</div>
+                                    <button data-event="click:selectFlight" data-flight-id="2" class="mt-3 bg-airline-blue text-white px-6 py-2 rounded-md font-semibold hover:bg-blue-700">Select</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Seat Selection Panel -->
+                <div class="lg:col-span-1">
+                    <div class="bg-white rounded-lg shadow-md border border-gray-200 p-6 sticky top-6">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-4">Seat Selection</h3>
+                        <div data-selected-flight="false" class="text-center text-gray-500 py-8">
+                            <i class="fas fa-chair text-4xl mb-4"></i>
+                            <p>Select a flight to choose your seats</p>
+                        </div>
+                        
+                        <!-- @FUNCTIONALITY: This seat map should implement interactive seat selection with availability checking -->
+                        <div data-selected-flight="true" class="hidden">
+                            <div class="mb-4">
+                                <div class="text-sm text-gray-600 mb-2">Flight SL 1234 - Boeing 737</div>
+                                <div class="bg-gray-100 p-4 rounded-md">
+                                    <!-- Seat Map Grid -->
+                                    <div class="grid grid-cols-6 gap-1 text-xs">
+                                        <!-- Row Headers -->
+                                        <div class="col-span-6 text-center font-semibold text-gray-700 mb-2">A B C   D E F</div>
+                                        
+                                        <!-- @MAP: seatRows.map(row => ( -->
+                                        <div data-mock="true" class="contents">
+                                            <button data-seat="1A" class="w-6 h-6 bg-green-200 hover:bg-green-300 rounded border border-green-400"></button>
+                                            <button data-seat="1B" class="w-6 h-6 bg-green-200 hover:bg-green-300 rounded border border-green-400"></button>
+                                            <button data-seat="1C" class="w-6 h-6 bg-green-200 hover:bg-green-300 rounded border border-green-400"></button>
+                                            <button data-seat="1D" class="w-6 h-6 bg-red-200 rounded border border-red-400 cursor-not-allowed"></button>
+                                            <button data-seat="1E" class="w-6 h-6 bg-green-200 hover:bg-green-300 rounded border border-green-400"></button>
+                                            <button data-seat="1F" class="w-6 h-6 bg-blue-200 rounded border border-blue-400"></button>
+                                        </div>
+                                        <!-- @END_MAP )) -->
+                                    </div>
+                                    
+                                    <div class="mt-4 flex items-center justify-between text-xs">
+                                        <div class="flex items-center space-x-2">
+                                            <div class="w-3 h-3 bg-green-200 border border-green-400 rounded"></div>
+                                            <span>Available</span>
+                                        </div>
+                                        <div class="flex items-center space-x-2">
+                                            <div class="w-3 h-3 bg-red-200 border border-red-400 rounded"></div>
+                                            <span>Occupied</span>
+                                        </div>
+                                        <div class="flex items-center space-x-2">
+                                            <div class="w-3 h-3 bg-blue-200 border border-blue-400 rounded"></div>
+                                            <span>Selected</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Booking Summary -->
+                            <div class="border-t pt-4">
+                                <h4 class="font-semibold text-gray-900 mb-3">Booking Summary</h4>
+                                <div class="space-y-2 text-sm">
+                                    <div class="flex justify-between">
+                                        <span>Flight:</span>
+                                        <span data-bind="selectedFlight.number">SL 1234</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span>Seat:</span>
+                                        <span data-bind="selectedSeat">1F</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span>Price:</span>
+                                        <span data-bind="totalPrice">$299</span>
+                                    </div>
+                                </div>
+                                <button data-event="click:confirmBooking" data-implementation="Should validate seat availability and create booking" class="w-full mt-4 bg-green-600 text-white py-2 px-4 rounded-md font-semibold hover:bg-green-700 transition duration-200">
+                                    Confirm Booking
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- @END_COMPONENT: BookingPage -->
+
+    <!-- @COMPONENT: TicketsPage [ticket display, customer tickets] -->
+    <div id="tickets-page" class="min-h-screen bg-gray-50 hidden">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div class="mb-8">
+                <h1 class="text-3xl font-bold text-gray-900">My Tickets</h1>
+                <p class="text-gray-600 mt-2">View and manage your booked flights</p>
+            </div>
+
+            <!-- @MAP: userTickets.map(ticket => ( -->
+            <div data-mock="true" class="bg-white rounded-lg shadow-lg border border-gray-200 mb-6 overflow-hidden">
+                <div class="bg-gradient-to-r from-airline-blue to-sky-blue text-white p-6">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <h2 class="text-xl font-bold">SkyLine Airlines</h2>
+                            <p class="text-blue-100 mt-1">Electronic Ticket</p>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-2xl font-bold" data-bind="ticket.number">TKT-789012</div>
+                            <div class="text-blue-100">Ticket Number</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="p-6">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <!-- Flight Details -->
+                        <div>
+                            <h3 class="font-semibold text-gray-900 mb-3">Flight Information</h3>
+                            <div class="space-y-2 text-sm">
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">Flight:</span>
+                                    <span data-bind="ticket.flightNumber">SL 1234</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">Date:</span>
+                                    <span data-bind="ticket.date">March 15, 2024</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">Departure:</span>
+                                    <span data-bind="ticket.departure">08:30 JFK</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">Arrival:</span>
+                                    <span data-bind="ticket.arrival">14:00 LAX</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Passenger Details -->
+                        <div>
+                            <h3 class="font-semibold text-gray-900 mb-3">Passenger Information</h3>
+                            <div class="space-y-2 text-sm">
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">Name:</span>
+                                    <span data-bind="ticket.passengerName">John Doe</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">Seat:</span>
+                                    <span data-bind="ticket.seat">1F</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">Class:</span>
+                                    <span data-bind="ticket.class">Economy</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">Gate:</span>
+                                    <span data-bind="ticket.gate">B12</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Booking Status -->
+                        <div>
+                            <h3 class="font-semibold text-gray-900 mb-3">Booking Status</h3>
+                            <div class="space-y-2 text-sm">
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">Status:</span>
+                                    <span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-semibold" data-bind="ticket.status">Confirmed</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">Booked:</span>
+                                    <span data-bind="ticket.bookedDate">March 1, 2024</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">Amount:</span>
+                                    <span data-bind="ticket.amount">$299.00</span>
+                                </div>
+                            </div>
+                            <div class="mt-4 space-y-2">
+                                <button data-event="click:downloadTicket" class="w-full bg-airline-blue text-white py-2 px-4 rounded-md text-sm font-semibold hover:bg-blue-700">
+                                    <i class="fas fa-download mr-2"></i>Download Ticket
+                                </button>
+                                <button data-event="click:cancelTicket" class="w-full bg-red-600 text-white py-2 px-4 rounded-md text-sm font-semibold hover:bg-red-700">
+                                    <i class="fas fa-times mr-2"></i>Cancel Booking
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- @END_MAP )) -->
+        </div>
+    </div>
+    <!-- @END_COMPONENT: TicketsPage -->
+
+    <!-- @COMPONENT: TransactionsPage [transaction history] -->
+    <div id="transactions-page" class="min-h-screen bg-gray-50 hidden">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div class="mb-8">
+                <h1 class="text-3xl font-bold text-gray-900">Transaction History</h1>
+                <p class="text-gray-600 mt-2">View all your booking transactions</p>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-md border border-gray-200 overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Booking ID</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Flight</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Payment Method</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            <!-- @MAP: transactions.map(transaction => ( -->
+                            <tr data-mock="true">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900" data-bind="transaction.bookingId">BKG-001234</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" data-bind="transaction.flight">SL 1234 (JFK → LAX)</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" data-bind="transaction.date">March 1, 2024</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" data-bind="transaction.amount">$299.00</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" data-bind="transaction.paymentMethod">Credit Card</td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800" data-bind="transaction.status">Completed</span>
+                                </td>
+                            </tr>
+                            <tr data-mock="true">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">BKG-001233</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">SL 5678 (LAX → JFK)</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">February 15, 2024</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">$349.00</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">PayPal</td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">Completed</span>
+                                </td>
+                            </tr>
+                            <!-- @END_MAP )) -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- @END_COMPONENT: TransactionsPage -->
+
+    <!-- @COMPONENT: EmployeeDashboard [CRUD operations for passengers and tickets] -->
+    <div id="employee-dashboard" class="min-h-screen bg-gray-50 hidden" data-role="employee">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div class="mb-8">
+                <h1 class="text-3xl font-bold text-gray-900">Employee Dashboard</h1>
+                <p class="text-gray-600 mt-2">Manage passenger details and ticket operations</p>
+            </div>
+
+            <!-- Dashboard Navigation -->
+            <div class="mb-8">
+                <div class="flex space-x-4">
+                    <button data-event="click:showPassengerManagement" class="bg-airline-blue text-white px-6 py-2 rounded-md font-semibold">Passenger Management</button>
+                    <button data-event="click:showTicketManagement" class="bg-gray-200 text-gray-700 px-6 py-2 rounded-md font-semibold hover:bg-gray-300">Ticket Management</button>
+                </div>
+            </div>
+
+            <!-- Passenger Management Section -->
+            <div id="passenger-management" class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- Add/Edit Passenger Form -->
+                <div class="lg:col-span-1">
+                    <div class="bg-white rounded-lg shadow-md border border-gray-200 p-6">
+                        <h2 class="text-xl font-semibold text-gray-900 mb-4">Add/Edit Passenger</h2>
+                        <form data-event="submit:handlePassengerSubmit">
+                            <!-- @STATE: passengerForm:object = {id: '', firstName: '', lastName: '', email: '', phone: '', dateOfBirth: ''} -->
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">First Name</label>
+                                    <input type="text" data-bind="passengerForm.firstName" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-airline-blue">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Last Name</label>
+                                    <input type="text" data-bind="passengerForm.lastName" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-airline-blue">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                                    <input type="email" data-bind="passengerForm.email" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-airline-blue">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Phone</label>
+                                    <input type="tel" data-bind="passengerForm.phone" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-airline-blue">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Date of Birth</label>
+                                    <input type="date" data-bind="passengerForm.dateOfBirth" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-airline-blue">
+                                </div>
+                                <div class="flex space-x-2">
+                                    <button type="submit" data-implementation="Should create or update passenger record" class="flex-1 bg-airline-blue text-white py-2 px-4 rounded-md font-semibold hover:bg-blue-700">Save</button>
+                                    <button type="button" data-event="click:clearForm" class="flex-1 bg-gray-300 text-gray-700 py-2 px-4 rounded-md font-semibold hover:bg-gray-400">Clear</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Passenger List -->
+                <div class="lg:col-span-2">
+                    <div class="bg-white rounded-lg shadow-md border border-gray-200">
+                        <div class="p-6 border-b border-gray-200">
+                            <div class="flex justify-between items-center">
+                                <h2 class="text-xl font-semibold text-gray-900">Passenger List</h2>
+                                <div class="flex space-x-2">
+                                    <input type="text" placeholder="Search passengers..." class="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-airline-blue">
+                                    <button class="bg-airline-blue text-white px-4 py-2 rounded-md text-sm font-semibold hover:bg-blue-700">
+                                        <i class="fas fa-search"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Phone</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-200">
+                                    <!-- @MAP: passengers.map(passenger => ( -->
+                                    <tr data-mock="true">
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="text-sm font-medium text-gray-900" data-bind="passenger.fullName">John Doe</div>
+                                            <div class="text-sm text-gray-500" data-bind="passenger.dateOfBirth">March 15, 1985</div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" data-bind="passenger.email">john.doe@email.com</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" data-bind="passenger.phone">+1 (555) 123-4567</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                            <button data-event="click:editPassenger" data-passenger-id="1" class="text-airline-blue hover:text-blue-700 mr-3">Edit</button>
+                                            <button data-event="click:deletePassenger" data-passenger-id="1" class="text-red-600 hover:text-red-700">Delete</button>
+                                        </td>
+                                    </tr>
+                                    <!-- @END_MAP )) -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Ticket Management Section (Hidden by default) -->
+            <div id="ticket-management" class="hidden">
+                <div class="bg-white rounded-lg shadow-md border border-gray-200">
+                    <div class="p-6 border-b border-gray-200">
+                        <h2 class="text-xl font-semibold text-gray-900">Ticket Management</h2>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ticket #</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Passenger</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Flight</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Seat</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                <!-- @MAP: tickets.map(ticket => ( -->
+                                <tr data-mock="true">
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900" data-bind="ticket.number">TKT-789012</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" data-bind="ticket.passengerName">John Doe</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" data-bind="ticket.flightInfo">SL 1234 (JFK → LAX)</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" data-bind="ticket.seat">1F</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800" data-bind="ticket.status">Confirmed</span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                        <button data-event="click:editTicket" data-ticket-id="1" class="text-airline-blue hover:text-blue-700 mr-3">Edit</button>
+                                        <button data-event="click:cancelTicket" data-ticket-id="1" class="text-red-600 hover:text-red-700">Cancel</button>
+                                    </td>
+                                </tr>
+                                <!-- @END_MAP )) -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- @END_COMPONENT: EmployeeDashboard -->
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <div class="flex items-center mb-4">
+                        <i class="fas fa-plane text-2xl mr-2"></i>
+                        <span class="text-xl font-bold">SkyLine Airlines</span>
+                    </div>
+                    <p class="text-gray-400">Your trusted partner for comfortable and reliable air travel.</p>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Quick Links</h3>
+                    <ul class="space-y-2 text-gray-400">
+                        <li><a href="#" class="hover:text-white">About Us</a></li>
+                        <li><a href="#" class="hover:text-white">Contact</a></li>
+                        <li><a href="#" class="hover:text-white">Support</a></li>
+                        <li><a href="#" class="hover:text-white">Privacy Policy</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Services</h3>
+                    <ul class="space-y-2 text-gray-400">
+                        <li><a href="#" class="hover:text-white">Flight Booking</a></li>
+                        <li><a href="#" class="hover:text-white">Check-in</a></li>
+                        <li><a href="#" class="hover:text-white">Baggage Info</a></li>
+                        <li><a href="#" class="hover:text-white">Travel Insurance</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Contact Info</h3>
+                    <div class="space-y-2 text-gray-400">
+                        <p><i class="fas fa-phone mr-2"></i>1-800-SKYLINE</p>
+                        <p><i class="fas fa-envelope mr-2"></i>support@skylineairlines.com</p>
+                        <p><i class="fas fa-map-marker-alt mr-2"></i>123 Aviation Blvd, Sky City</p>
+                    </div>
+                </div>
+            </div>
+            <div class="border-t border-gray-700 mt-8 pt-8 text-center text-gray-400">
+                <p>&copy; 2024 SkyLine Airlines. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        (function() {
+            // TODO: Implement business logic, API calls, and state management
+            
+            // Basic page navigation simulation
+            const pages = ['home-page', 'booking-page', 'tickets-page', 'transactions-page', 'employee-dashboard'];
+            const navLinks = document.querySelectorAll('nav a');
+            
+            function showPage(pageId) {
+                pages.forEach(page => {
+                    const element = document.getElementById(page);
+                    if (element) {
+                        element.classList.add('hidden');
+                    }
+                });
+                
+                const targetPage = document.getElementById(pageId);
+                if (targetPage) {
+                    targetPage.classList.remove('hidden');
+                }
+            }
+            
+            // Navigation event simulation
+            navLinks.forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const href = e.target.getAttribute('href');
+                    if (href === '#home') showPage('home-page');
+                    else if (href === '#book') showPage('booking-page');
+                    else if (href === '#tickets') showPage('tickets-page');
+                    else if (href === '#transactions') showPage('transactions-page');
+                    else if (href === '#dashboard') showPage('employee-dashboard');
+                });
+            });
+            
+            // Modal controls
+            const loginModal = document.getElementById('login-modal');
+            const showLoginButtons = document.querySelectorAll('[data-event="click:showLogin"]');
+            const closeModalButtons = document.querySelectorAll('[data-event="click:closeModal"]');
+            
+            showLoginButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    loginModal.classList.remove('hidden');
+                });
+            });
+            
+            closeModalButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    loginModal.classList.add('hidden');
+                });
+            });
+            
+            // Close modal on background click
+            loginModal.addEventListener('click', (e) => {
+                if (e.target === loginModal) {
+                    loginModal.classList.add('hidden');
+                }
+            });
+            
+            // Seat selection simulation
+            const seatButtons = document.querySelectorAll('[data-seat]');
+            seatButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    // Clear previous selections
+                    seatButtons.forEach(btn => {
+                        btn.classList.remove('bg-blue-200', 'border-blue-400');
+                        btn.classList.add('bg-green-200', 'border-green-400');
+                    });
+                    
+                    // Mark as selected if not occupied
+                    if (!button.classList.contains('bg-red-200')) {
+                        button.classList.remove('bg-green-200', 'border-green-400');
+                        button.classList.add('bg-blue-200', 'border-blue-400');
+                    }
+                });
+            });
+            
+            // Employee dashboard tab switching
+            const passengerMgmtBtn = document.querySelector('[data-event="click:showPassengerManagement"]');
+            const ticketMgmtBtn = document.querySelector('[data-event="click:showTicketManagement"]');
+            const passengerSection = document.getElementById('passenger-management');
+            const ticketSection = document.getElementById('ticket-management');
+            
+            if (passengerMgmtBtn && ticketMgmtBtn) {
+                passengerMgmtBtn.addEventListener('click', () => {
+                    passengerMgmtBtn.classList.add('bg-airline-blue', 'text-white');
+                    passengerMgmtBtn.classList.remove('bg-gray-200', 'text-gray-700');
+                    ticketMgmtBtn.classList.remove('bg-airline-blue', 'text-white');
+                    ticketMgmtBtn.classList.add('bg-gray-200', 'text-gray-700');
+                    
+                    passengerSection.classList.remove('hidden');
+                    ticketSection.classList.add('hidden');
+                });
+                
+                ticketMgmtBtn.addEventListener('click', () => {
+                    ticketMgmtBtn.classList.add('bg-airline-blue', 'text-white');
+                    ticketMgmtBtn.classList.remove('bg-gray-200', 'text-gray-700');
+                    passengerMgmtBtn.classList.remove('bg-airline-blue', 'text-white');
+                    passengerMgmtBtn.classList.add('bg-gray-200', 'text-gray-700');
+                    
+                    ticketSection.classList.remove('hidden');
+                    passengerSection.classList.add('hidden');
+                });
+            }
+        })();
+    </script>
+</body>
+</html>

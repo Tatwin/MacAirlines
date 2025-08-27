@@ -4,9 +4,9 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Plane, Calendar, Clock, MapPin, User, Download, AlertCircle, IndianRupee, Settings, UserCheck, CreditCard, Eye, CheckCircle, Users, FileText } from 'lucide-react';
 import type { Ticket, Flight, Passenger } from '@shared/schema';
 
-interface TicketCardProps {
-  ticket: Ticket & { flight: Flight; passenger: Passenger };
-  onDownload: (ticketId: string) => void;
+type TicketCardProps = {
+  ticket: Ticket;
+  onDownload: (id: string) => void;
   onCancel: (ticketId: string) => void;
   onCheckIn?: (ticketId: string) => void;
   onChangeSeat?: (ticketId: string) => void;
@@ -14,7 +14,7 @@ interface TicketCardProps {
   onManageBooking?: (ticketId: string) => void;
 }
 
-export function TicketCard({ 
+export default function TicketCard({ 
   ticket, 
   onDownload, 
   onCancel, 
@@ -218,38 +218,17 @@ export function TicketCard({
             Change Seat
           </Button>
 
-          {/* Manage Booking Button */}
-          <Button 
-            variant="outline"
-            className="flex items-center justify-center"
-            onClick={() => onManageBooking?.(ticket.id)}
-            disabled={ticket.status === 'cancelled'}
-          >
-            <CreditCard className="mr-2 h-4 w-4" />
-            Manage Booking
-          </Button>
-
-          {/* View Details Button */}
-          <Button 
-            variant="outline"
-            className="flex items-center justify-center"
-            onClick={() => onViewDetails?.(ticket.id)}
-          >
-            <Eye className="mr-2 h-4 w-4" />
-            View Details
-          </Button>
         </div>
 
         {/* Secondary Actions */}
         <div className="flex justify-between items-center mt-4 pt-4 border-t">
-          <Button 
-            variant="ghost" 
-            size="sm" 
+          <Button
+            variant="ghost"
+            size="sm"
             onClick={() => onDownload(ticket.id)}
             className="text-primary hover:text-primary/80"
           >
-            <Download className="mr-2 h-4 w-4" />
-            Download Ticket
+            Download
           </Button>
 
           {ticket.status !== 'cancelled' && ticket.status !== 'completed' && (
@@ -287,5 +266,3 @@ export function TicketCard({
     </Card>
   );
 }
-
-export default TicketCard;

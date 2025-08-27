@@ -1,83 +1,80 @@
-import express, { type Request, Response, NextFunction } from "express";
+import express, { Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import { seedDatabase } from "./seed";
 
-const app = express();
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
+async function createServer() {
+  const app = express();
 
-app.use((req, res, next) => {
-  const start = Date.now();
-  const path = req.path;
-  let capturedJsonResponse: Record<string, any> | undefined = undefined;
+  // Middleware for JSON & URL encoded
+  app.use(express.json());
+  app.use(express.urlencoded({ extended: false }));
 
-  const originalResJson = res.json;
-  res.json = function (bodyJson, ...args) {
-    capturedJsonResponse = bodyJson;
-    return originalResJson.apply(res, [bodyJson, ...args]);
-  };
+  // API logger
+  app.use((req, res, next) => {
+    const start = Date.now();
+    const path = req.path;
+    let capturedJson: Record<string, any> | undefined;
 
-  res.on("finish", () => {
-    const duration = Date.now() - start;
-    if (path.startsWith("/api")) {
-      let logLine = `${req.method} ${path} ${res.statusCode} in ${duration}ms`;
-      if (capturedJsonResponse) {
-        logLine += ` :: ${JSON.stringify(capturedJsonResponse)}`;
+    const originalJson = res.json;
+    res.json = function (body: any, ...args: any[]) {
+      capturedJson = body;
+      return originalJson.apply(res, [body, ...args]);
+    };
+
+    res.on("finish", () => {
+      if (path.startsWith("/api")) {
+        const duration = Date.now() - start;
+        let logLine = `${req.method} ${path} ${res.statusCode} in ${duration}ms`;
+        if (capturedJson) logLine += ` :: ${JSON.stringify(capturedJson)}`;
+        if (logLine.length > 120) logLine = logLine.slice(0, 119) + "…";
+        log(logLine);
       }
+    });
 
-      if (logLine.length > 80) {
-        logLine = logLine.slice(0, 79) + "…";
-      }
-
-      log(logLine);
-    }
+    next();
   });
 
-  next();
-});
-
-(async () => {
-  // Seed database with Tamil Nadu data only if empty
+  // Database seeding (only if empty)
   const { db } = await import("./db");
   const { users } = await import("@shared/schema");
   const existingUsers = await db.select().from(users).limit(1);
-  
+
   if (existingUsers.length === 0) {
+    log("🌱 Seeding database...");
     await seedDatabase();
   } else {
-    console.log("📊 Database already seeded, skipping...");
+    log("📊 Database already seeded, skipping...");
   }
-  
+
+  // Register routes
   const server = await registerRoutes(app);
 
+  // Global error handler
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
     const status = err.status || err.statusCode || 500;
-    const message = err.message || "Internal Server Error";
-
-    res.status(status).json({ message });
-    throw err;
+    res.status(status).json({ message: err.message || "Internal Server Error" });
+    log(`❌ Error: ${err.message}`);
   });
 
-  // importantly only setup vite in development and after
-  // setting up all the other routes so the catch-all route
-  // doesn't interfere with the other routes
+  // Development vs Production handling
   if (app.get("env") === "development") {
     await setupVite(app, server);
   } else {
     serveStatic(app);
   }
 
-  // ALWAYS serve the app on the port specified in the environment variable PORT
-  // Other ports are firewalled. Default to 5000 if not specified.
-  // this serves both the API and the client.
-  // It is the only port that is not firewalled.
-  const port = parseInt(process.env.PORT || '5000', 10);
-  server.listen({
-    port,
-    host: "0.0.0.0",
-    reusePort: true,
-  }, () => {
-    log(`serving on port ${port}`);
+  // Start server
+  const port = parseInt(process.env.PORT || "5000", 10);
+  const host = "127.0.0.1"; // force IPv4 loopback on Windows
+
+  server.listen(port, host, () => {
+    log(`🚀 Server running at http://${host}:${port}`);
   });
-})();
+}
+
+// ✅ actually call the function
+createServer().catch((err) => {
+  log(`❌ Failed to start server: ${err.message}`);
+  process.exit(1);
+});
